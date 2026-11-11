@@ -1,0 +1,32 @@
+# Editorial and evidence standard — World Wonder Web
+
+Status: development policy, not a claim that published articles have been verified.
+
+## Purpose
+Explore extraordinary achievements, natural wonders, inspiring events, remarkable discoveries and reported miracles with curiosity and intellectual honesty.
+
+## Source and verification requirements
+- Each factual entry must include a stable title, subject category, publication/review date, at least one attributable source, and an evidence status.
+- Prefer original research, museum or archive records, peer-reviewed studies, official data and reliable first-hand documentation.
+- Clearly distinguish documented events, scientific hypotheses, faith-based interpretations, anecdotal accounts and unverified claims.
+- For reported miracles, explain what is reported, by whom, what independent evidence exists and what remains unknown. Do not present disputed supernatural explanations as established facts.
+- Never fabricate testimonials, images presented as authentic evidence, quotations or measurements.
+- Link to sources rather than copying copyrighted text or imagery. Record licences and permissions for reuse.
+
+## Respect and representation
+- Treat cultures, religious traditions, communities and participants respectfully; seek context rather than extracting sensational stories.
+- Protect private individuals and minors; obtain appropriate permissions for identifiable personal stories and images.
+- Clearly label AI-generated illustrations as illustrations, never documentary evidence.
+- Offer corrections and removal-request channels before launch.
+
+## Entry lifecycle
+1. Proposed — topic suggested, not verified.
+2. Researching — sources gathered, claims under review.
+3. Verified — documented facts checked, uncertainties labelled.
+4. Published — editorial review passed.
+5. Corrected/withdrawn — publicly document material changes.
+
+## Release gates
+- No public factual article without provenance and review.
+- No membership billing until clear terms, cancellation, refund and privacy workflows have been tested.
+- No public deployment or paid integrations without explicit owner approval.
