@@ -1,0 +1,11 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {validateEntry,validateCatalog} = require('../src/catalog-validation.cjs');
+const base = {id:'example-record',title:'Example',category:'History',summary:'Research lead',status:'proposed',claimType:'reported',sources:[]};
+test('proposed research leads are allowed without asserting truth',()=>assert.deepEqual(validateEntry(base),[]));
+test('published entries need evidence and review',()=>assert.ok(validateEntry({...base,status:'published'}).length>=3));
+test('verified source and review metadata pass',()=>assert.deepEqual(validateEntry({...base,status:'published',claimType:'documented',sources:[{title:'Archive record',url:'https://example.org/record'}],reviewedAt:'2026-11-11',reviewer:'Editorial review'}),[]));
+test('duplicate IDs are rejected',()=>assert.ok(validateCatalog([base,base]).some(x=>x.includes('Duplicate'))));
+test('unsafe source URLs are rejected',()=>assert.ok(validateEntry({...base,sources:[{title:'Bad',url:'javascript:alert(1)'}]}).length));
+test('images require attribution',()=>assert.ok(validateEntry({...base,images:[{url:'https://example.org/photo.jpg'}]}).length));
