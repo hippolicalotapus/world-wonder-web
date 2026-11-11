@@ -20,6 +20,10 @@ function validateMedia(record) {
   if (!Array.isArray(record.archiveEntryIds) || record.archiveEntryIds.some(x=>typeof x !== 'string' || !x.trim())) errors.push('archiveEntryIds must be an array of IDs');
   if (!Array.isArray(record.topics) || record.topics.some(x=>typeof x !== 'string' || !x.trim())) errors.push('topics must be an array of strings');
   if (typeof record.embedAllowed !== 'boolean') errors.push('embedAllowed must be boolean');
+  if (record.mediaType === 'podcast' && !['episode','series'].includes(record.linkTarget)) errors.push('Podcast linkTarget must be episode or series');
+  if (record.mediaType === 'podcast' && record.linkTarget === 'series' && record.verificationStatus === 'reviewed') errors.push('Podcast episode cannot be reviewed using a series-only URL');
+  if (record.verificationStatus === 'reviewed' && record.sourceCheck !== 'verified') errors.push('Reviewed media must have verified sourceCheck');
+
   if (record.verificationStatus === 'reviewed' && (!record.reviewer || !/^\d{4}-\d{2}-\d{2}$/.test(record.reviewedAt || '') || Number.isNaN(Date.parse(record.reviewedAt)))) errors.push('Reviewed records need reviewer and reviewedAt');
   if (record.mediaType === 'youtube' && safeUrl(record.canonicalUrl)) {
     const host = new URL(record.canonicalUrl).hostname.toLowerCase();
