@@ -1,0 +1,14 @@
+'use strict';
+const fs=require('node:fs');
+const path=require('node:path');
+const {validateMediaCatalog}=require('../src/media-validation.cjs');
+const records=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/media-catalog.json'),'utf8'));
+const errors=validateMediaCatalog(records);
+const total=records.length;
+const reviewed=records.filter(x=>x.verificationStatus==='reviewed').length;
+const pending=records.filter(x=>x.verificationStatus==='proposed'||x.verificationStatus==='reviewing').length;
+const series=records.filter(x=>x.mediaType==='podcast'&&x.linkTarget==='series').length;
+const unresolved=records.filter(x=>x.sourceCheck!=='verified').length;
+const linked=records.filter(x=>Array.isArray(x.archiveEntryIds)&&x.archiveEntryIds.length).length;
+console.log(JSON.stringify({total,reviewed,pending,podcastSeriesWithoutEpisodeLinks:series,sourceChecksOutstanding:unresolved,linkedToArchiveEntries:linked,validationErrors:errors},null,2));
+if(errors.length)process.exitCode=1;

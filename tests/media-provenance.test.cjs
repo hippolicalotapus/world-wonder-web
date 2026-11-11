@@ -1,0 +1,10 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {validateMedia}=require('../src/media-validation.cjs');
+const sample={id:'example-podcast',title:'Example podcast',mediaType:'podcast',canonicalUrl:'https://example.org/series',publisher:'Example publisher',language:'en',rightsNotes:'Link only',evidenceRole:'secondary',verificationStatus:'proposed',archiveEntryIds:[],topics:[],embedAllowed:false,linkTarget:'series',sourceCheck:'pending'};
+test('series page may be retained as an unverified research lead',()=>assert.deepEqual(validateMedia(sample),[]));
+test('series page cannot masquerade as a reviewed episode',()=>assert.ok(validateMedia({...sample,verificationStatus:'reviewed',reviewer:'Editor',reviewedAt:'2026-11-11',sourceCheck:'verified'}).some(x=>x.includes('series-only'))));
+test('podcast needs explicit episode or series link target',()=>assert.ok(validateMedia({...sample,linkTarget:undefined}).some(x=>x.includes('linkTarget'))));
+test('reviewed episode requires source verification',()=>assert.ok(validateMedia({...sample,linkTarget:'episode',verificationStatus:'reviewed',reviewer:'Editor',reviewedAt:'2026-11-11',sourceCheck:'pending'}).some(x=>x.includes('sourceCheck'))));
+test('reviewed episode with verified source and reviewer is structurally valid',()=>assert.deepEqual(validateMedia({...sample,linkTarget:'episode',verificationStatus:'reviewed',reviewer:'Editor',reviewedAt:'2026-11-11',sourceCheck:'verified'}),[]));

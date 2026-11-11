@@ -1,0 +1,11 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {validateMedia,validateMediaCatalog}=require('../src/media-validation.cjs');
+const base={id:'sample-episode',title:'Sample episode',mediaType:'youtube',canonicalUrl:'https://www.youtube.com/watch?v=example',publisher:'Example creator',language:'en',rightsNotes:'Link only; embed permission not reviewed',evidenceRole:'commentary',verificationStatus:'proposed',archiveEntryIds:[],topics:['history'],embedAllowed:false};
+test('proposed records are valid but not reviewed',()=>assert.deepEqual(validateMedia(base),[]));
+test('reviewed records need named reviewer and date',()=>assert.ok(validateMedia({...base,verificationStatus:'reviewed'}).length));
+test('reviewed records pass with reviewer and date',()=>assert.deepEqual(validateMedia({...base,verificationStatus:'reviewed',reviewer:'Editor',reviewedAt:'2026-11-11',sourceCheck:'verified'}),[]));
+test('unsafe URLs are rejected',()=>assert.ok(validateMedia({...base,canonicalUrl:'javascript:alert(1)'}).length));
+test('wrong host for YouTube is rejected',()=>assert.ok(validateMedia({...base,canonicalUrl:'https://example.org/watch'}).length));
+test('duplicate media IDs are rejected',()=>assert.ok(validateMediaCatalog([base,base]).some(x=>x.includes('Duplicate'))));

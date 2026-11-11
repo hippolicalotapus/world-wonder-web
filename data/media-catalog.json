@@ -1,0 +1,96 @@
+[
+  {
+    "id": "smithsonian-eclipses",
+    "title": "Why We Love Eclipses",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "astronomy",
+      "eclipses"
+    ],
+    "embedAllowed": false,
+    "linkTarget": "series",
+    "sourceCheck": "pending"
+  },
+  {
+    "id": "smithsonian-scrolls",
+    "title": "How Artificial Intelligence Is Making 2,000-Year-Old Scrolls Readable Again",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "discovery",
+      "archaeology"
+    ],
+    "embedAllowed": false,
+    "linkTarget": "series",
+    "sourceCheck": "pending"
+  },
+  {
+    "id": "bnf-manuscripts-guide",
+    "title": "Medieval manuscripts: a user's guide",
+    "mediaType": "youtube",
+    "canonicalUrl": "https://www.youtube.com/watch?v=pMoELLWtiGw",
+    "publisher": "Bibliothèque nationale de France",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "craftsmanship",
+      "history"
+    ],
+    "embedAllowed": false,
+    "sourceCheck": "pending"
+  },
+  {
+    "id": "smithsonian-nasa-asteroid",
+    "title": "How NASA Captured Asteroid Dust to Find the Origins of Life",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine — There's More to That",
+    "language": "en",
+    "rightsNotes": "Publisher series page verified; episode-specific URL and embedding permissions still need review",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "space",
+      "science"
+    ],
+    "embedAllowed": false,
+    "sourceCheck": "pending",
+    "linkTarget": "series"
+  },
+  {
+    "id": "smithsonian-sojourner-truth",
+    "title": "How to Separate Fact From Myth in the Extraordinary Story of Sojourner Truth",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine — There's More to That",
+    "language": "en",
+    "rightsNotes": "Publisher series page verified; episode-specific URL and embedding permissions still need review",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "human achievement",
+      "history"
+    ],
+    "embedAllowed": false,
+    "sourceCheck": "pending",
+    "linkTarget": "series"
+  }
+]
