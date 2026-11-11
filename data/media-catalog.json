@@ -14,7 +14,9 @@
       "astronomy",
       "eclipses"
     ],
-    "embedAllowed": false
+    "embedAllowed": false,
+    "linkTarget": "series",
+    "sourceCheck": "pending"
   },
   {
     "id": "smithsonian-scrolls",
@@ -31,7 +33,9 @@
       "discovery",
       "archaeology"
     ],
-    "embedAllowed": false
+    "embedAllowed": false,
+    "linkTarget": "series",
+    "sourceCheck": "pending"
   },
   {
     "id": "bnf-manuscripts-guide",
@@ -48,7 +52,8 @@
       "craftsmanship",
       "history"
     ],
-    "embedAllowed": false
+    "embedAllowed": false,
+    "sourceCheck": "pending"
   },
   {
     "id": "smithsonian-nasa-asteroid",
@@ -66,7 +71,8 @@
       "science"
     ],
     "embedAllowed": false,
-    "sourceCheck": "Episode title confirmed in Smithsonian publisher episode index; episode-specific URL pending"
+    "sourceCheck": "pending",
+    "linkTarget": "series"
   },
   {
     "id": "smithsonian-sojourner-truth",
@@ -84,6 +90,7 @@
       "history"
     ],
     "embedAllowed": false,
-    "sourceCheck": "Episode title confirmed in Smithsonian publisher episode index; episode-specific URL pending"
+    "sourceCheck": "pending",
+    "linkTarget": "series"
   }
 ]
