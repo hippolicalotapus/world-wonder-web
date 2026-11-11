@@ -18,7 +18,7 @@ function validateEntry(entry) {
   });
   if (entry.status === 'verified' || entry.status === 'published' || entry.status === 'corrected') {
     if (!entry.sources?.length) errors.push('Verified and published records need sources');
-    if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(entry.reviewedAt || '') || Number.isNaN(Date.parse(entry.reviewedAt))) errors.push('Valid reviewedAt date required');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(entry.reviewedAt || '') || Number.isNaN(Date.parse(entry.reviewedAt))) errors.push('Valid reviewedAt date required');
     if (!entry.reviewer || typeof entry.reviewer !== 'string') errors.push('Reviewer required');
   }
   if (entry.status === 'published' && entry.claimType === 'unverified') errors.push('Unverified claim cannot be published as a factual entry');
