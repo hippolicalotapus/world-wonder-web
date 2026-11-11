@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "id": "smithsonian-eclipses",
+    "title": "Why We Love Eclipses",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "astronomy",
+      "eclipses"
+    ],
+    "embedAllowed": false
+  },
+  {
+    "id": "smithsonian-scrolls",
+    "title": "How Artificial Intelligence Is Making 2,000-Year-Old Scrolls Readable Again",
+    "mediaType": "podcast",
+    "canonicalUrl": "https://www.smithsonianmag.com/podcast/series/theres-more-to-that/season-1/",
+    "publisher": "Smithsonian Magazine",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "discovery",
+      "archaeology"
+    ],
+    "embedAllowed": false
+  },
+  {
+    "id": "bnf-manuscripts-guide",
+    "title": "Medieval manuscripts: a user's guide",
+    "mediaType": "youtube",
+    "canonicalUrl": "https://www.youtube.com/watch?v=pMoELLWtiGw",
+    "publisher": "Bibliothèque nationale de France",
+    "language": "en",
+    "rightsNotes": "Link to publisher only; embedding and redistribution not authorized or checked",
+    "evidenceRole": "secondary",
+    "verificationStatus": "proposed",
+    "archiveEntryIds": [],
+    "topics": [
+      "craftsmanship",
+      "history"
+    ],
+    "embedAllowed": false
+  }
+]
