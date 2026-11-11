@@ -5,6 +5,7 @@ on:
       - 'src/media-validation.cjs'
       - 'tests/media-*.test.cjs'
       - 'data/media-catalog.json'
+      - 'scripts/media-audit.cjs'
       - '.github/workflows/media-tests.yml'
   workflow_dispatch:
 permissions:
@@ -20,3 +21,5 @@ jobs:
           node-version: '22'
       - name: Run media catalog tests
         run: node --test tests/media-*.test.cjs
+      - name: Audit source verification and article links
+        run: node scripts/media-audit.cjs
