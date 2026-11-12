@@ -30,3 +30,19 @@ Explore extraordinary achievements, natural wonders, inspiring events, remarkabl
 - No public factual article without provenance and review.
 - No membership billing until clear terms, cancellation, refund and privacy workflows have been tested.
 - No public deployment or paid integrations without explicit owner approval.
+
+## Offline editorial review history (development)
+The `tools/editorial_workflow.py` module enforces state transitions:
+`draft → fact_check → rights_review → approved → published`.
+A reviewer can reject a record, return it to draft, or reopen a published
+record for rights review. Each decision requires a reviewer, explanation,
+and timezone-aware ISO timestamp. The append-only history is stored in
+`internal_review_history` on the private record and is excluded from
+`public-catalogue.json` by the exporter.
+
+Approval and publication both re-run the publication validator. An
+approval is not evidence that the underlying extraordinary claim is true.
+Review decisions are offline operations; there is no public submission
+or account-management interface yet. No records are published merely
+by adding a review history. Keep private source files outside any
+publicly served website directory.
