@@ -21,10 +21,9 @@ def validate(records):
         if not isinstance(record, dict):
             errors.append(f"{at}: expected object")
             continue
-        if state := record.get("review_status"):
-            if state == "published":
-                for field in PRIVATE_FIELDS.intersection(record):
-                    errors.append(f"{at}: private field {field} cannot be published")
+        if record.get("review_status") == "published":
+            for field in PRIVATE_FIELDS.intersection(record):
+                errors.append(f"{at}: private field {field} cannot be published")
         for field in ("id", "title", "collection", "summary"):
             if not isinstance(record.get(field), str) or not record[field].strip():
                 errors.append(f"{at}: missing {field}")
