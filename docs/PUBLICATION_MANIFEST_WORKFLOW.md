@@ -218,3 +218,23 @@ independent editorial review, separately retain trusted anchors for the new
 sealed histories, and prepare a fresh manifest and attestation for the new
 source digest before any public export. Do not silently replace existing
 published records or treat migration as automatic authorization to publish.
+
+## Privacy-safe legacy migration receipts
+Confirmed legacy migration now requires both `--output` and `--receipt`, in
+separate new private directories. It writes a new sealed copy and a minimal
+receipt with only the source SHA-256, migrated SHA-256, record count, and
+migrated count. Original records remain unchanged. Example:
+
+```sh
+python3 tools/migrate_legacy_reviews.py /private/source/records.json --confirm-create --output /private/migrated/records.json --receipt /private/receipts/migration.json
+python3 tools/verify_migration.py /private/source/records.json /private/migrated/records.json /private/receipts/migration.json
+```
+
+Verification is read-only and checks that the migrated records are exactly
+what the migration algorithm would produce. The receipt has no reviewer
+identities or editorial text. A normal receipt-write failure attempts to
+remove the new migrated file only if it has not been replaced; a process crash
+can leave a partial pair that requires manual reconciliation. Protect all
+three private files with separate access controls. Receipt hashes establish
+consistency, not reviewer identity or independent approval. Fresh editorial
+authorization and trusted anchors are still required before publication.
