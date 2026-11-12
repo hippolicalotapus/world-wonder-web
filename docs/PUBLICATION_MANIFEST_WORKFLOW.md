@@ -195,3 +195,26 @@ file requests strict verification of all included review histories; a mixed
 legacy/sealed collection may need migration to fully sealed histories first.
 This preserves old data but does not authenticate the human reviewer or
 make unsealed legacy records tamper-evident.
+
+## Safe legacy review-history migration
+Older published records with valid, unsealed review histories can be migrated
+without changing their original editorial decisions, status, or source file.
+First inspect a dry run:
+
+```sh
+python3 tools/migrate_legacy_reviews.py /private/editorial/records.json
+```
+
+To create a separate, new private copy after review:
+
+```sh
+python3 tools/migrate_legacy_reviews.py /private/editorial/records.json --confirm-create --output /private/vault/migrated-records.json
+```
+
+The migration validates review transitions and chronology, preserves drafts,
+rejects missing histories, and refuses to overwrite files. It does **not**
+independently attest that old approvals were genuine. After migration, use
+independent editorial review, separately retain trusted anchors for the new
+sealed histories, and prepare a fresh manifest and attestation for the new
+source digest before any public export. Do not silently replace existing
+published records or treat migration as automatic authorization to publish.
