@@ -35,3 +35,16 @@ compensating cleanup, **not** a crash-atomic two-file transaction. If power
 fails or the process is forcibly terminated between writes, inspect the
 private directory and verify the restored data and receipt before continuing.
 Never assume an absent receipt means a completed recovery.
+
+## Read-only reconciliation
+After an unexpected interruption, run:
+
+```sh
+python3 tools/reconcile_recovery.py /private/backups/snapshot-001.json /private/editorial-restored.json /private/recovery-receipt-001.json
+```
+
+The checker returns `verified`, `not_started`, or a specific missing,
+invalid, or mismatched status. It never modifies files, prints private
+record content, or automatically deletes an incomplete recovery. A missing
+receipt is **not** proof that the restored data is safe to use. Investigate
+and manually reconcile private files before continuing editorial work.
