@@ -54,8 +54,8 @@ def guarded_export(records, manifest):
     return result
 
 def main():
-    if len(sys.argv) != 6:
-        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json PRIVATE_RECEIPT.json")
+    if len(sys.argv) not in (6, 7):
+        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json PRIVATE_RECEIPT.json [TRUSTED_ANCHORS.json]")
     source = Path(sys.argv[1])
     destination = Path(sys.argv[2])
     validate_export_paths(source, Path(sys.argv[3]), Path(sys.argv[4]), destination, Path(sys.argv[5]))
@@ -66,6 +66,9 @@ def main():
     from independent_review import validate_attestation
     attestation = load_private_json(Path(sys.argv[4]))
     validate_attestation(records, manifest, attestation)
+    if len(sys.argv) == 7:
+        from review_anchor_guard import verify_anchors
+        verify_anchors(records, load_private_json(Path(sys.argv[6])))
     result = validate_public_artifact(guarded_export(records, manifest))
     if destination.name != "public-catalogue.json":
         raise SystemExit("Export destination must be public-catalogue.json")
