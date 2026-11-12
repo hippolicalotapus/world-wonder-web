@@ -40,5 +40,17 @@ class EditorialValidationTests(unittest.TestCase):
         item["sources"][0]["url"] = "file:///private.txt"
         self.assertTrue(validator.validate([item]))
 
+
+    def test_documented_event_requires_primary_source(self):
+        item = record()
+        item["claim_type"] = "documented_event"
+        self.assertTrue(any("primary source" in e for e in validator.validate([item])))
+
+    def test_documented_event_with_primary_source_passes(self):
+        item = record()
+        item["claim_type"] = "documented_event"
+        item["sources"][0]["source_type"] = "primary"
+        self.assertEqual(validator.validate([item]), [])
+
 if __name__ == "__main__":
     unittest.main()
