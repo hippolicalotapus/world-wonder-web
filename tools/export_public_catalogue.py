@@ -6,6 +6,7 @@ import sys
 import datetime
 from public_export_audit import make_receipt
 from editorial_backup import write_new, remove_if_unchanged
+from private_input import load_private_json
 from public_artifact_guard import validate_public_artifact
 from pathlib import Path
 from validate_editorial_records import validate
@@ -58,10 +59,10 @@ def main():
     destination = Path(sys.argv[2])
     if source.resolve() == destination.resolve():
         raise SystemExit("Input and output must differ")
-    records = json.loads(source.read_text(encoding="utf-8"))
-    manifest = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
+    records = load_private_json(source)
+    manifest = load_private_json(Path(sys.argv[3]))
     from independent_review import validate_attestation
-    attestation = json.loads(Path(sys.argv[4]).read_text(encoding="utf-8"))
+    attestation = load_private_json(Path(sys.argv[4]))
     validate_attestation(records, manifest, attestation)
     result = validate_public_artifact(guarded_export(records, manifest))
     if destination.name != "public-catalogue.json":
