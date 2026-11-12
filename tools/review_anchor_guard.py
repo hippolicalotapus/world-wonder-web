@@ -3,9 +3,7 @@
 The anchors must be stored outside the editable editorial records and public
 website. This validates consistency, not authentication of the anchor file.
 """
-import hashlib
-import json
-from editorial_backup import canonical
+import re
 from review_audit_chain import verify_history
 
 FORMAT = "world-wonder-review-anchors-v1"
@@ -29,7 +27,7 @@ def verify_anchors(records, anchor_file):
     if not isinstance(anchor_file, dict) or set(anchor_file) != {"format", "heads"} or anchor_file["format"] != FORMAT:
         raise ValueError("Invalid trusted anchor envelope")
     heads = anchor_file["heads"]
-    if not isinstance(heads, dict) or any(not isinstance(k, str) or not isinstance(v, str) for k,v in heads.items()):
+    if not isinstance(heads, dict) or any(not isinstance(k, str) or not k.strip() or not isinstance(v, str) or re.fullmatch(r"[0-9a-f]{64}", v) is None for k,v in heads.items()):
         raise ValueError("Invalid trusted anchor heads")
     expected = prepare_anchors(records)
     if expected["heads"] != heads:
