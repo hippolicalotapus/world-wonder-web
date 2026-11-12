@@ -55,3 +55,12 @@ written. The existing JavaScript CI artifact check remains in place as a
 second, independent gate. The exporter still requires a source-bound
 manifest and separate reviewer attestation and refuses to overwrite an
 existing catalogue. These checks do not publish or deploy the website.
+
+## Privacy-safe export receipt
+The export CLI requires a fifth positional argument: a **new private receipt
+path**, separate from `public-catalogue.json`. It creates a checksum-bound
+receipt containing only the catalogue digest, record count and timestamp.
+Both output paths must be new. Ordinary receipt-write failures trigger
+cleanup of the newly created catalogue; a process crash between writes
+still requires manual reconciliation. Keep receipts out of the public
+website and Git repository. No deployment is performed by the CLI.
