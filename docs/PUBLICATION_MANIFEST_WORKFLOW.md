@@ -140,3 +140,21 @@ without that external anchor, someone able to rewrite the history can also
 recompute all its hashes. This is tamper-evidence, not a digital signature,
 reviewer authentication, or automatic proof of editorial approval. No public
 website files or deployments are changed by sealing a private history.
+
+## Trusted audit-anchor verification at export
+The offline public exporter accepts an optional sixth argument,
+`TRUSTED_ANCHORS.json`, after the private receipt path. When supplied,
+it checks the separately retained `world-wonder-review-anchors-v1`
+record-ID-to-head-hash mapping against all sealed editorial histories.
+Missing or altered anchors, unsealed nonempty histories, and published
+records without anchors block the export. Anchor input must be a distinct
+private file outside the public catalogue directory.
+
+To prepare the anchor data programmatically, use
+`review_anchor_guard.prepare_anchors(records)` only **after** a real
+editorial review. Retain its output separately from editable records and
+protect it against unauthorized replacement. Recreating the anchor from
+possibly compromised records defeats the tamper-evidence check. Existing
+exports without this optional argument remain supported; those exports
+**do not** gain trusted-anchor verification. This mechanism is not a
+signature, reviewer authentication, or a substitute for access controls.
