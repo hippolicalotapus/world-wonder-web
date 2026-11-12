@@ -5,7 +5,7 @@ import hashlib
 import sys
 import datetime
 from public_export_audit import make_receipt
-from editorial_backup import write_new
+from editorial_backup import write_new, remove_if_unchanged
 from public_artifact_guard import validate_public_artifact
 from pathlib import Path
 from validate_editorial_records import validate
@@ -75,11 +75,12 @@ def main():
         raise SystemExit("Output parent directories must exist")
     receipt = make_receipt(result, datetime.datetime.now(datetime.timezone.utc).isoformat())
     write_new(destination, result)
+    stat = destination.lstat()
+    identity = (stat.st_dev, stat.st_ino)
     try:
         write_new(receipt_path, receipt)
     except Exception:
-        if destination.is_file() and not destination.is_symlink():
-            destination.unlink()
+        remove_if_unchanged(destination, identity)
         raise
     print(f"Exported {len(result)} published records")
 
