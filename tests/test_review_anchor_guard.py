@@ -49,6 +49,20 @@ class ReviewAnchorGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Invalid trusted anchor envelope"):
             verify_anchors(data,anchors)
 
+    def test_malformed_sha256_anchor_rejected(self):
+        data=records()
+        anchors=prepare_anchors(data)
+        anchors["heads"]["fixture"]="NOT-A-SHA256"
+        with self.assertRaisesRegex(ValueError,"Invalid trusted anchor heads"):
+            verify_anchors(data,anchors)
+
+    def test_blank_anchor_record_id_rejected(self):
+        data=records()
+        anchors=prepare_anchors(data)
+        anchors["heads"][" "]=anchors["heads"].pop("fixture")
+        with self.assertRaisesRegex(ValueError,"Invalid trusted anchor heads"):
+            verify_anchors(data,anchors)
+
     def test_legacy_unsealed_draft_allowed_without_anchor(self):
         data=[{"id":"draft","review_status":"draft","internal_review_history":[]}]
         self.assertTrue(verify_anchors(data,prepare_anchors(data)))
