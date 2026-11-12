@@ -128,3 +128,15 @@ begin partway through the workflow, but any entries present must be coherent.
 This detects inconsistent or accidentally altered histories; it does **not**
 provide cryptographic tamper evidence or authenticate reviewers. Keep the
 private audit log access-controlled and retain original backups.
+
+## Optional hash-linked editorial audit history
+Private editorial review histories may now be sealed with
+`tools/review_audit_chain.py` using SHA-256 links between entries. The
+independent approval gate validates these links whenever a sealed history
+is present, rejecting altered, missing, reordered or mixed sealed entries.
+Existing unsealed histories remain supported for backward compatibility.
+Retain the final hash in a separately trusted, access-controlled location;
+without that external anchor, someone able to rewrite the history can also
+recompute all its hashes. This is tamper-evidence, not a digital signature,
+reviewer authentication, or automatic proof of editorial approval. No public
+website files or deployments are changed by sealing a private history.
