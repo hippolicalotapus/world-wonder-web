@@ -40,6 +40,27 @@ def verify(bundle):
         raise ValueError("Backup integrity mismatch")
     return bundle["records"]
 
+def recovery_receipt(bundle, restored_records, timestamp):
+    """Private provenance receipt without record content or identifying metadata."""
+    verify(bundle)
+    if canonical(restored_records) != canonical(bundle["records"]):
+        raise ValueError("Restored records differ from verified backup")
+    if not isinstance(timestamp, str):
+        raise ValueError("Receipt timestamp required")
+    try:
+        moment = datetime.datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        if moment.tzinfo is None or moment.utcoffset() is None:
+            raise ValueError("Timezone required")
+    except ValueError as exc:
+        raise ValueError("Timezone-aware receipt timestamp required") from exc
+    return {
+        "format": "world-wonder-recovery-receipt-v1",
+        "backup_sha256": bundle["sha256"],
+        "backup_created_at": bundle["created_at"],
+        "restored_at": timestamp,
+        "record_count": len(restored_records),
+    }
+
 def write_new(path, payload):
     if path.is_symlink() or path.exists():
         raise FileExistsError("Refusing to overwrite backup or symlink")
@@ -71,6 +92,7 @@ def main(argv=None):
     restore = sub.add_parser("restore")
     restore.add_argument("backup", type=Path)
     restore.add_argument("new_private_destination", type=Path)
+    restore.add_argument("--receipt", type=Path, required=True)
     args = parser.parse_args(argv)
     if args.command == "create":
         source = args.private_source.resolve(strict=True)
@@ -86,8 +108,17 @@ def main(argv=None):
         if args.command == "restore":
             if args.new_private_destination.name == "public-catalogue.json":
                 parser.error("Cannot restore into public catalogue")
-            write_new(args.new_private_destination, records)
-            print("Verified backup restored to new private file")
+            destination = args.new_private_destination
+            receipt_path = args.receipt
+            if destination.absolute() == receipt_path.absolute():
+                parser.error("Receipt and restored file must differ")
+            if receipt_path.is_symlink() or receipt_path.exists() or destination.is_symlink() or destination.exists():
+                parser.error("Restore and receipt destinations must be new files")
+            timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            receipt = recovery_receipt(bundle, records, timestamp)
+            write_new(destination, records)
+            write_new(receipt_path, receipt)
+            print("Verified backup restored; private provenance receipt created")
         else:
             print("Private backup verified")
 if __name__ == "__main__":
