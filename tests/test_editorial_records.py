@@ -52,5 +52,24 @@ class EditorialValidationTests(unittest.TestCase):
         item["sources"][0]["source_type"] = "primary"
         self.assertEqual(validator.validate([item]), [])
 
+
+    def test_invalid_root_rejected(self):
+        self.assertTrue(validator.validate({"records": []}))
+
+    def test_missing_required_fields_rejected(self):
+        item = record()
+        del item["title"]
+        self.assertTrue(any("missing title" in e for e in validator.validate([item])))
+
+    def test_invalid_access_date_rejected(self):
+        item = record()
+        item["sources"][0]["accessed_on"] = "2026-99-99"
+        self.assertTrue(any("accessed_on" in e for e in validator.validate([item])))
+
+    def test_invalid_claim_type_rejected(self):
+        item = record()
+        item["claim_type"] = "confirmed_miracle"
+        self.assertTrue(any("claim_type" in e for e in validator.validate([item])))
+
 if __name__ == "__main__":
     unittest.main()
