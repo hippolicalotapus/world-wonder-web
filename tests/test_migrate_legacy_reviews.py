@@ -60,11 +60,14 @@ class LegacyMigrationTests(unittest.TestCase):
             output_dir.mkdir()
             source=source_dir/"records.json"
             destination=output_dir/"migrated.json"
+            receipt_dir=root/"receipts"
+            receipt_dir.mkdir()
+            receipt=receipt_dir/"receipt.json"
             source.write_text(json.dumps(fixture()))
             original=source.read_bytes()
             main([str(source)])
             self.assertFalse(destination.exists())
-            main([str(source),"--confirm-create","--output",str(destination)])
+            main([str(source),"--confirm-create","--output",str(destination),"--receipt",str(receipt)])
             self.assertEqual(source.read_bytes(),original)
             self.assertEqual(json.loads(destination.read_text())[0]["review_status"],"published")
             with self.assertRaises(FileExistsError):
