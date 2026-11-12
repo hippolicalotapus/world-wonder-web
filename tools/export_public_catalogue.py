@@ -4,6 +4,7 @@ import json
 import hashlib
 import sys
 from editorial_backup import write_new
+from public_artifact_guard import validate_public_artifact
 from pathlib import Path
 from validate_editorial_records import validate
 
@@ -60,7 +61,7 @@ def main():
     from independent_review import validate_attestation
     attestation = json.loads(Path(sys.argv[4]).read_text(encoding="utf-8"))
     validate_attestation(records, manifest, attestation)
-    result = guarded_export(records, manifest)
+    result = validate_public_artifact(guarded_export(records, manifest))
     if destination.name != "public-catalogue.json":
         raise SystemExit("Export destination must be public-catalogue.json")
     write_new(destination, result)
