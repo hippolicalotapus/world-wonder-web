@@ -98,3 +98,14 @@ inputs. On systems supporting `O_NOFOLLOW`, the file is opened without
 following a final symlink. These checks reduce accidental disclosure and
 blocking reads; they are not a substitute for restricted private-directory
 permissions or authenticated reviewer access.
+
+## Private/public output separation
+The public export command now requires private editorial inputs and the
+private audit receipt to reside outside the public catalogue's directory.
+All five input/output paths must be distinct, and output files must not
+already exist. Use an existing, access-controlled private directory for
+source records, manifest, reviewer attestation and receipt; use a separate
+staging directory for the new `public-catalogue.json`. This reduces the
+risk of publishing a private receipt or editorial source by copying an
+entire export directory. This path check does not replace filesystem
+permissions or deployment review, and no deployment occurs automatically.
