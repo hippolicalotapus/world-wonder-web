@@ -46,3 +46,14 @@ Review decisions are offline operations; there is no public submission
 or account-management interface yet. No records are published merely
 by adding a review history. Keep private source files outside any
 publicly served website directory.
+
+## Explicit public export safeguard
+The public catalogue export CLI now requires a separate publication manifest
+(`world-wonder-publication-manifest-v1`) containing `source_sha256` and
+`publish_ids`. The digest binds the approval to the exact canonical JSON
+of the private source records, and the ID list must match all records marked
+`published`. This prevents a stale or unexpectedly expanded source file
+from silently changing the exported catalogue. Keep the manifest private,
+review it independently, and never treat a manifest as a cryptographic
+signature or proof of reviewer identity. The existing public website is not
+affected until an explicitly reviewed export is supplied.
