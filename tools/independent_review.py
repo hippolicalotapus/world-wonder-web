@@ -24,9 +24,25 @@ def make_attestation(records, manifest, reviewer, timestamp):
         history = record.get("internal_review_history", [])
         if not isinstance(history, list):
             raise ValueError("Invalid review history")
-        publishers = {entry.get("reviewer", "").strip().casefold() for entry in history
-                      if isinstance(entry, dict) and entry.get("to") in ("approved", "published")
-                      and isinstance(entry.get("reviewer"), str)}
+        publishers = set()
+        for entry in history:
+            if not isinstance(entry, dict):
+                raise ValueError("Invalid review history entry")
+            if entry.get("to") not in ("approved", "published"):
+                continue
+            name = entry.get("reviewer")
+            when = entry.get("timestamp")
+            if not isinstance(name, str) or not name.strip() or not isinstance(when, str):
+                raise ValueError("Invalid editorial approval entry")
+            try:
+                approval_time = datetime.datetime.fromisoformat(when.replace("Z", "+00:00"))
+                if approval_time.tzinfo is None or approval_time.utcoffset() is None:
+                    raise ValueError("Timezone required")
+            except ValueError as exc:
+                raise ValueError("Invalid editorial approval timestamp") from exc
+            if approval_time > parsed:
+                raise ValueError("Independent review predates editorial approval")
+            publishers.add(name.strip().casefold())
         if not publishers:
             raise ValueError("Published record lacks recorded editorial approval")
         if reviewer.strip().casefold() in publishers:
