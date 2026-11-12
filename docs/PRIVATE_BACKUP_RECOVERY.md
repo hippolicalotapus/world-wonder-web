@@ -26,3 +26,12 @@ and number of restored records. It contains no article text, reviewer names,
 or private evidence. Keep receipts in private storage alongside recovery
 records. A receipt is an integrity record, not a cryptographic signature or
 proof of the identity of the person who restored the backup.
+
+## Interrupted recovery handling
+The restore command checks that both destination paths are available before
+writing. If the receipt write fails normally, it removes the newly restored
+record file so the operation can be retried with fresh paths. This is
+compensating cleanup, **not** a crash-atomic two-file transaction. If power
+fails or the process is forcibly terminated between writes, inspect the
+private directory and verify the restored data and receipt before continuing.
+Never assume an absent receipt means a completed recovery.
