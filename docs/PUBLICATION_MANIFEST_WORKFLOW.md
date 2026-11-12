@@ -109,3 +109,12 @@ staging directory for the new `public-catalogue.json`. This reduces the
 risk of publishing a private receipt or editorial source by copying an
 entire export directory. This path check does not replace filesystem
 permissions or deployment review, and no deployment occurs automatically.
+
+## Independent approval chronology
+Independent-review attestation validation now requires a nonblank named
+editorial approver and timezone-aware approval timestamp for each approval
+or publication history entry. A purported independent review that predates
+editorial approval is rejected. Reviewer names are compared without case,
+so changing capitalization does not bypass the two-person procedural check.
+These checks do not authenticate users or establish that a human review
+actually happened. Keep review histories private and independently audited.
