@@ -16,14 +16,14 @@ def check_output(source, output):
     output = Path(output).absolute()
     if output.name == "public-catalogue.json" or output == source:
         raise ValueError("Invalid private anchor output path")
-    if output.parent == source.parent:
+    if output.parent.resolve() == source.parent.resolve():
         raise ValueError("Anchor must be stored outside the editable source directory")
-    if not output.parent.is_dir() or output.parent.is_symlink():
+    if not output.parent.is_dir() or output.parent.resolve() != output.parent:
         raise ValueError("Anchor directory must exist and not be a symlink")
     if output.exists() or output.is_symlink():
         raise FileExistsError("Anchor output must be new")
     # Refuse known repository roots and their descendants.
-    for parent in (output.parent, *output.parent.parents):
+    for parent in (output.parent.resolve(), *output.parent.resolve().parents):
         if (parent / ".git").exists():
             raise ValueError("Anchor must not be written inside a Git repository")
     return output
