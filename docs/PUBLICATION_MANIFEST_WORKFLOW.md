@@ -64,3 +64,18 @@ Both output paths must be new. Ordinary receipt-write failures trigger
 cleanup of the newly created catalogue; a process crash between writes
 still requires manual reconciliation. Keep receipts out of the public
 website and Git repository. No deployment is performed by the CLI.
+
+## Reconcile interrupted exports (read-only)
+Run the checker against a prepared catalogue and its private receipt:
+
+```sh
+python3 tools/reconcile_public_export.py /private/export/public-catalogue.json /private/export-receipt.json
+```
+
+The command prints `verified`, `not_started`, `missing_catalogue`,
+`missing_receipt`, `invalid_catalogue`, `invalid_receipt`,
+`receipt_mismatch`, or `unreadable_or_invalid_file`. It never writes,
+repairs, publishes, or prints private content. Missing or mismatched files
+require manual inspection and a new reviewed export, not automatic repair.
+Forcible process termination can still leave a catalogue without its
+receipt; the reconciliation command detects this state.
