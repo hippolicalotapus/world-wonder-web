@@ -66,15 +66,17 @@ def main():
     from independent_review import validate_attestation
     attestation = load_private_json(Path(sys.argv[4]))
     validate_attestation(records, manifest, attestation)
+    from review_anchor_guard import authorize_publication_anchors
+    anchor_data = None
     if len(sys.argv) == 7:
-        from review_anchor_guard import verify_anchors
         anchor_path = Path(sys.argv[6]).absolute()
         private_paths = {source.absolute(), Path(sys.argv[3]).absolute(),
                          Path(sys.argv[4]).absolute(), destination.absolute(),
                          Path(sys.argv[5]).absolute()}
         if anchor_path in private_paths or anchor_path.parent == destination.absolute().parent:
             raise ValueError("Trusted audit anchors must be separate private input")
-        verify_anchors(records, load_private_json(anchor_path))
+        anchor_data = load_private_json(anchor_path)
+    authorize_publication_anchors(records, anchor_data)
     result = validate_public_artifact(guarded_export(records, manifest))
     if destination.name != "public-catalogue.json":
         raise SystemExit("Export destination must be public-catalogue.json")
