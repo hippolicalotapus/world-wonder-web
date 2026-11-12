@@ -238,3 +238,20 @@ can leave a partial pair that requires manual reconciliation. Protect all
 three private files with separate access controls. Receipt hashes establish
 consistency, not reviewer identity or independent approval. Fresh editorial
 authorization and trusted anchors are still required before publication.
+
+## Interrupted migration reconciliation
+If migration was interrupted, run the read-only reconciliation command before
+retrying or moving any private files:
+
+```sh
+python3 tools/reconcile_migration.py /private/source/records.json /private/migrated/records.json /private/receipts/migration.json
+```
+
+It reports `not_started`, `missing_receipt`, `orphaned_receipt`, or
+`verified_complete`. For a missing receipt, it first verifies that the
+migrated file exactly matches the expected migration; a mismatched or
+malformed file is rejected instead of being called recoverable. An existing
+receipt must match the source and migrated file hashes. The command never
+creates, removes, or overwrites any file. Incomplete states return a nonzero
+exit code; keep them quarantined for manual review and use fresh paths for
+any later attempt. A verified pair is not itself publication authorization.
