@@ -71,5 +71,16 @@ class EditorialValidationTests(unittest.TestCase):
         item["claim_type"] = "confirmed_miracle"
         self.assertTrue(any("claim_type" in e for e in validator.validate([item])))
 
+
+    def test_missing_review_status_rejected(self):
+        item = record()
+        del item["review_status"]
+        self.assertTrue(any("review_status" in e for e in validator.validate([item])))
+
+    def test_unsourced_draft_is_not_published(self):
+        item = record(state="draft")
+        item["sources"] = []
+        self.assertEqual(validator.validate([item]), [])
+
 if __name__ == "__main__":
     unittest.main()
