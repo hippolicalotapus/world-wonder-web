@@ -28,7 +28,9 @@ class PublicCatalogueTests(unittest.TestCase):
     def test_only_published_records_are_exported(self):
         published = record()
         published.pop("email")
-        result = module.export([record("draft"), published])
+        draft = record("draft")
+        draft["id"] = "draft-1"
+        result = module.export([draft, published])
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["id"], "wonder-1")
 
