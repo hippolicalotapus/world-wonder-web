@@ -31,3 +31,17 @@ existing file; it does not deploy or publish to the website automatically.
 The attestation format is an offline procedural check, **not** authenticated
 identity or a digital signature. Never treat a self-entered reviewer name
 as proof of independent human review. Keep private attestations outside Git.
+
+## Prepare an independent review attestation offline
+After a separate reviewer has actually inspected the source and manifest:
+
+```sh
+python3 tools/reviewer_attestation.py prepare /private/editorial.json /private/manifest-001.json /private/review-001.json --reviewer "Independent Editor"
+python3 tools/reviewer_attestation.py validate /private/editorial.json /private/manifest-001.json /private/review-001.json
+```
+
+The tool refuses an approving editor's name, changed source records,
+symlink inputs, and overwriting an existing private attestation. It does
+not publish, deploy, or independently establish the reviewer's identity.
+Human review is still required; do not generate an attestation merely to
+satisfy the software gate.
