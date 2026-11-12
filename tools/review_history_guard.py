@@ -9,6 +9,11 @@ from editorial_workflow import NEXT
 def check_history(history, reviewed_at):
     if not isinstance(history, list):
         raise ValueError("Invalid review history")
+    if history and any(isinstance(entry, dict) and
+                       ("entry_hash" in entry or "previous_hash" in entry)
+                       for entry in history):
+        from review_audit_chain import verify_history
+        verify_history(history)
     approvers = set()
     previous_state = None
     previous_time = None
