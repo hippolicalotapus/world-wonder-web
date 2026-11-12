@@ -5,12 +5,11 @@ import datetime
 import json
 from pathlib import Path
 from editorial_backup import write_new
+from private_input import load_private_json
 from independent_review import make_attestation, validate_attestation
 
 def load_private(path):
-    if path.is_symlink() or path.name == "public-catalogue.json":
-        raise ValueError("Private editorial input cannot be a symlink or public catalogue")
-    return json.loads(path.read_text(encoding="utf-8"))
+    return load_private_json(path)
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline independent reviewer attestation")
