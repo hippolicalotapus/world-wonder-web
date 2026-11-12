@@ -31,10 +31,10 @@ def review_records(records, record_id, state, reviewer, reason, timestamp, expec
 
 def safe_write(destination, records, overwrite=False):
     """Atomic replace with owner-only permissions; refuse symlink destinations."""
-    if destination.exists() and not overwrite:
-        raise FileExistsError("Refusing to overwrite existing private review file")
     if destination.is_symlink():
         raise ValueError("Refusing symlink output")
+    if destination.exists() and not overwrite:
+        raise FileExistsError("Refusing to overwrite existing private review file")
     destination.parent.mkdir(parents=True, exist_ok=True)
     fd, name = tempfile.mkstemp(prefix=".editorial-", suffix=".json", dir=destination.parent)
     try:
