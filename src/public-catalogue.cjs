@@ -38,6 +38,20 @@ function normalizePublicCatalog(input) {
     return clean;
   });
 }
+/** Verify the exact on-disk public artifact; sanitizing in memory cannot undo a leaked file. */
+function assertPublicExport(input) {
+  const clean = normalizePublicCatalog(input);
+  for (let i = 0; i < input.length; i++) {
+    const record = input[i];
+    const unexpected = Object.keys(record).filter(k => !PUBLIC_FIELDS.includes(k));
+    if (unexpected.length) throw new TypeError('Unexpected public field: ' + unexpected.join(', '));
+    for (const source of record.sources) {
+      const extra = Object.keys(source).filter(k => !SOURCE_FIELDS.includes(k));
+      if (extra.length) throw new TypeError('Unexpected public source field: ' + extra.join(', '));
+    }
+  }
+  return clean;
+}
 function searchPublicCatalog(records, {query = '', collection = '', claimType = ''} = {}) {
   const needle = String(query).trim().toLocaleLowerCase();
   return records.filter(r =>
@@ -47,4 +61,4 @@ function searchPublicCatalog(records, {query = '', collection = '', claimType = 
       .some(v => v.toLocaleLowerCase().includes(needle)))
   ).sort((a,b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id));
 }
-module.exports = {CLAIM_LABELS, normalizePublicCatalog, searchPublicCatalog};
+module.exports = {CLAIM_LABELS, normalizePublicCatalog, assertPublicExport, searchPublicCatalog};
