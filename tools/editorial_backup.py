@@ -81,6 +81,29 @@ def write_new(path, payload):
         if os.path.exists(temporary):
             os.unlink(temporary)
 
+def restore_pair(bundle, destination, receipt_path, timestamp, writer=write_new):
+    """Restore with cleanup on ordinary receipt-write failures.
+
+    A process crash between files still requires manual reconciliation.
+    """
+    records = verify(bundle)
+    if destination.absolute() == receipt_path.absolute():
+        raise ValueError("Receipt and restored destination must differ")
+    for path in (destination, receipt_path):
+        if path.is_symlink() or path.exists():
+            raise FileExistsError("Restore and receipt destinations must be new")
+        if not path.parent.is_dir():
+            raise ValueError("Restore parent directory must already exist")
+    receipt = recovery_receipt(bundle, records, timestamp)
+    writer(destination, records)
+    try:
+        writer(receipt_path, receipt)
+    except Exception:
+        if destination.is_file() and not destination.is_symlink():
+            destination.unlink()
+        raise
+    return receipt
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Offline private editorial backup and recovery")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -108,16 +131,8 @@ def main(argv=None):
         if args.command == "restore":
             if args.new_private_destination.name == "public-catalogue.json":
                 parser.error("Cannot restore into public catalogue")
-            destination = args.new_private_destination
-            receipt_path = args.receipt
-            if destination.absolute() == receipt_path.absolute():
-                parser.error("Receipt and restored file must differ")
-            if receipt_path.is_symlink() or receipt_path.exists() or destination.is_symlink() or destination.exists():
-                parser.error("Restore and receipt destinations must be new files")
             timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
-            receipt = recovery_receipt(bundle, records, timestamp)
-            write_new(destination, records)
-            write_new(receipt_path, receipt)
+            restore_pair(bundle, args.new_private_destination, args.receipt, timestamp)
             print("Verified backup restored; private provenance receipt created")
         else:
             print("Private backup verified")
