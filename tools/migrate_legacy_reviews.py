@@ -9,7 +9,7 @@ import argparse
 import datetime
 from pathlib import Path
 from private_input import load_private_json
-from editorial_backup import write_new
+from editorial_backup import write_new, remove_if_unchanged
 from review_audit_chain import seal_history, verify_history
 from review_history_guard import check_history
 from review_anchor_cli import check_output
@@ -49,6 +49,7 @@ def main(argv=None):
     parser.add_argument("private_source", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--confirm-create", action="store_true")
+    parser.add_argument("--receipt", type=Path)
     args = parser.parse_args(argv)
     records = load_private_json(args.private_source)
     result, changed = plan_migration(records)
@@ -58,11 +59,24 @@ def main(argv=None):
         destination = check_output(args.private_source, args.output)
         if not changed:
             raise ValueError("No legacy published histories require migration")
+        if args.receipt is None:
+            raise ValueError("Migration receipt path required for confirmed migration")
+        from migration_receipt import make_receipt
+        receipt_path = check_output(args.private_source, args.receipt)
+        if receipt_path == destination or receipt_path.parent == destination.parent:
+            raise ValueError("Receipt must be separate from migrated records")
+        receipt = make_receipt(records, result)
         write_new(destination, result)
+        identity = destination.lstat()
+        try:
+            write_new(receipt_path, receipt)
+        except Exception:
+            remove_if_unchanged(destination, (identity.st_dev, identity.st_ino))
+            raise
         print(f"Created private migrated copy: {len(changed)} sealed published histories; source unchanged")
     else:
-        if args.output is not None:
-            parser.error("--output requires --confirm-create")
+        if args.output is not None or args.receipt is not None:
+            parser.error("--output and --receipt require --confirm-create")
         print(f"Dry run: {len(changed)} legacy published histories eligible; no files changed")
     return len(changed)
 
