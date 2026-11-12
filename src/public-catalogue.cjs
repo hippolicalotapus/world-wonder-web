@@ -24,7 +24,7 @@ function normalizePublicCatalog(input) {
         !Array.isArray(record.sources) || !record.sources.length ||
         record.sources.some(s => !s || typeof s !== 'object' ||
           !['title','publisher'].every(k => typeof s[k] === 'string' && s[k].trim()) ||
-          !safeUrl(s.url) || !/^\\d{4}-\\d{2}-\\d{2}$/.test(s.accessed_on || '') ||
+          !safeUrl(s.url) || !/^\d{4}-\d{2}-\d{2}$/.test(s.accessed_on || '') ||
           !['primary','secondary','testimony'].includes(s.source_type) ||
           !['link_only','licensed','public_domain'].includes(s.rights_status))) {
       throw new TypeError('Invalid published record at index ' + index);
