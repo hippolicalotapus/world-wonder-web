@@ -73,7 +73,7 @@ class PublicCatalogueTests(unittest.TestCase):
         item = record()
         item.pop("email")
         digest = hashlib.sha256((json.dumps([item], ensure_ascii=False, sort_keys=True,
-                                             separators=(",", ":")) + "\\n").encode()).hexdigest()
+                                             separators=(",", ":")) + "\n").encode()).hexdigest()
         with self.assertRaisesRegex(ValueError, "Duplicate"):
             module.guarded_export([item], {"format": "world-wonder-publication-manifest-v1",
                 "source_sha256": digest, "publish_ids": ["wonder-1", "wonder-1"]})
