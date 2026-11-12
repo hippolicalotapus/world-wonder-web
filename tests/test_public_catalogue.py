@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regression coverage for the public catalogue privacy boundary."""
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
 import unittest
 
@@ -53,6 +55,28 @@ class PublicCatalogueTests(unittest.TestCase):
         item["sources"][0]["rights_status"] = "permission_pending"
         with self.assertRaisesRegex(ValueError, "pending rights"):
             module.export([item])
+
+    def test_guarded_export_requires_exact_source_and_ids(self):
+        item = record()
+        item.pop("email")
+        digest = hashlib.sha256((json.dumps([item], ensure_ascii=False, sort_keys=True,
+                                             separators=(",", ":")) + "\n").encode()).hexdigest()
+        manifest = {"format": "world-wonder-publication-manifest-v1",
+                    "source_sha256": digest, "publish_ids": ["wonder-1"]}
+        self.assertEqual(len(module.guarded_export([item], manifest)), 1)
+        with self.assertRaisesRegex(ValueError, "source changed"):
+            module.guarded_export([dict(item, summary="changed")], manifest)
+        with self.assertRaisesRegex(ValueError, "exactly match"):
+            module.guarded_export([item], dict(manifest, publish_ids=[]))
+
+    def test_manifest_rejects_duplicate_ids(self):
+        item = record()
+        item.pop("email")
+        digest = hashlib.sha256((json.dumps([item], ensure_ascii=False, sort_keys=True,
+                                             separators=(",", ":")) + "\\n").encode()).hexdigest()
+        with self.assertRaisesRegex(ValueError, "Duplicate"):
+            module.guarded_export([item], {"format": "world-wonder-publication-manifest-v1",
+                "source_sha256": digest, "publish_ids": ["wonder-1", "wonder-1"]})
 
     def test_export_order_is_stable(self):
         first = record()
