@@ -158,3 +158,19 @@ possibly compromised records defeats the tamper-evidence check. Existing
 exports without this optional argument remain supported; those exports
 **do not** gain trusted-anchor verification. This mechanism is not a
 signature, reviewer authentication, or a substitute for access controls.
+
+## Offline trusted audit-anchor commands
+After reviewing and sealing private editorial histories, prepare a new anchor
+in a separately controlled private directory (never inside Git or the public
+website):
+
+```sh
+python3 tools/review_anchor_cli.py prepare /private/editorial/records.json /private/vault/anchor-001.json
+python3 tools/review_anchor_cli.py verify /private/editorial/records.json /private/vault/anchor-001.json
+```
+
+Preparation is create-only, refuses an anchor alongside editable source
+records, and refuses Git repositories and unsealed published histories.
+Verification is read-only. Retain the resulting anchor under independent
+access controls; merely creating it beside editable records does not establish
+trust. Neither command publishes or deploys content.
