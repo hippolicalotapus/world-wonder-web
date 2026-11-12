@@ -8,6 +8,7 @@ from public_export_audit import make_receipt
 from editorial_backup import write_new, remove_if_unchanged
 from private_input import load_private_json
 from public_artifact_guard import validate_public_artifact
+from export_path_guard import validate_export_paths
 from pathlib import Path
 from validate_editorial_records import validate
 
@@ -57,6 +58,7 @@ def main():
         raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json PRIVATE_RECEIPT.json")
     source = Path(sys.argv[1])
     destination = Path(sys.argv[2])
+    validate_export_paths(source, Path(sys.argv[3]), Path(sys.argv[4]), destination, Path(sys.argv[5]))
     if source.resolve() == destination.resolve():
         raise SystemExit("Input and output must differ")
     records = load_private_json(source)
