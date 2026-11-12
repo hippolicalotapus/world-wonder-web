@@ -67,6 +67,18 @@ class AnchorCliTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Trusted audit anchor mismatch"):
             main(["verify",str(self.source),str(self.anchor)])
 
+    def test_reject_symlinked_ancestor_directory(self):
+        alias = Path(self.tmp.name) / "alias"
+        alias.symlink_to(self.vault, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            main(["prepare", str(self.source), str(alias / "anchor.json")])
+
+    def test_reject_symlink_alias_of_source_directory(self):
+        alias = Path(self.tmp.name) / "editorial-alias"
+        alias.symlink_to(self.edit, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "outside"):
+            main(["prepare", str(self.source), str(alias / "anchor.json")])
+
     def test_reject_repository_output(self):
         (self.vault/".git").mkdir()
         with self.assertRaisesRegex(ValueError,"Git repository"):
