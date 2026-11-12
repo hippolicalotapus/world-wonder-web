@@ -9,7 +9,7 @@ permissions and appropriate encrypted storage.
 ```sh
 python3 tools/editorial_backup.py create /private/editorial.json /private/backups/snapshot-001.json
 python3 tools/editorial_backup.py verify /private/backups/snapshot-001.json
-python3 tools/editorial_backup.py restore /private/backups/snapshot-001.json /private/editorial-restored.json
+python3 tools/editorial_backup.py restore /private/backups/snapshot-001.json /private/editorial-restored.json --receipt /private/recovery-receipt-001.json
 ```
 
 Backup and restore destinations must have existing parent directories,
@@ -18,3 +18,11 @@ and owner-readable on POSIX systems. Restore validates the entire
 record collection and checks SHA-256 before writing to a new private file.
 Review the restored records before using them for subsequent editorial
 decisions. This tool does not modify `public-catalogue.json`.
+
+## Recovery provenance
+A successful restore writes a separate owner-only receipt containing the
+verified backup checksum, backup creation timestamp, restoration timestamp,
+and number of restored records. It contains no article text, reviewer names,
+or private evidence. Keep receipts in private storage alongside recovery
+records. A receipt is an integrity record, not a cryptographic signature or
+proof of the identity of the person who restored the backup.
