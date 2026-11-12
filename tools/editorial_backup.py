@@ -76,10 +76,27 @@ def write_new(path, payload):
             os.fsync(stream.fileno())
         if path.is_symlink() or path.exists():
             raise FileExistsError("Destination appeared during backup")
-        os.link(temporary, path)
+        os.link(temporary, path, follow_symlinks=False)
+        if os.name == "posix":
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+
+def remove_if_unchanged(path, identity):
+    """Never remove a file replaced by another process during cleanup."""
+    try:
+        current = path.lstat()
+    except FileNotFoundError:
+        return False
+    if not path.is_symlink() and (current.st_dev, current.st_ino) == identity:
+        path.unlink()
+        return True
+    return False
 
 def restore_pair(bundle, destination, receipt_path, timestamp, writer=write_new):
     """Restore with cleanup on ordinary receipt-write failures.
@@ -96,11 +113,12 @@ def restore_pair(bundle, destination, receipt_path, timestamp, writer=write_new)
             raise ValueError("Restore parent directory must already exist")
     receipt = recovery_receipt(bundle, records, timestamp)
     writer(destination, records)
+    written = destination.lstat()
+    identity = (written.st_dev, written.st_ino)
     try:
         writer(receipt_path, receipt)
     except Exception:
-        if destination.is_file() and not destination.is_symlink():
-            destination.unlink()
+        remove_if_unchanged(destination, identity)
         raise
     return receipt
 
