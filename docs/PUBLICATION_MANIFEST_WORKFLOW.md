@@ -183,3 +183,15 @@ lowercase 64-character SHA-256 head hashes. Keep anchors in a separately
 controlled private directory. These filesystem preflight checks cannot
 protect against a hostile process changing directory entries concurrently;
 use trusted filesystem permissions and retain independently verified copies.
+
+## Mandatory anchors for sealed publication histories
+The public export command now **requires** the optional trusted-anchor file
+argument whenever any record marked `published` has a hash-sealed editorial
+review history. Missing or mismatched anchors block export before a public
+catalogue or receipt is written. Legacy exports with only unsealed review
+histories still work without anchors. Sealed draft histories do not require
+anchors unless an anchor file is explicitly supplied. Supplying an anchor
+file requests strict verification of all included review histories; a mixed
+legacy/sealed collection may need migration to fully sealed histories first.
+This preserves old data but does not authenticate the human reviewer or
+make unsealed legacy records tamper-evident.
