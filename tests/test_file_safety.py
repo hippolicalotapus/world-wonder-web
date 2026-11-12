@@ -28,7 +28,6 @@ class FileSafetyTests(unittest.TestCase):
             path = Path(folder) / "new.json"
             write_new(path, [])
             stat = path.lstat()
-            path.unlink()
             replacement = Path(folder) / "replacement"
             replacement.write_text("replacement")
             os.replace(replacement, path)
@@ -41,8 +40,9 @@ class FileSafetyTests(unittest.TestCase):
             receipt = Path(folder) / "receipt.json"
             def writer(path, payload):
                 if path == receipt:
-                    restored.unlink()
-                    restored.write_text("another writer")
+                    replacement = Path(folder) / "other.json"
+                    replacement.write_text("another writer")
+                    os.replace(replacement, restored)
                     raise OSError("simulated interruption")
                 write_new(path, payload)
             with self.assertRaisesRegex(OSError, "interruption"):
