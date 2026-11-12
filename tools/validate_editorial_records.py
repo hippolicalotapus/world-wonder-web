@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 CLAIMS = {"documented_event", "first_person_testimony", "belief_or_tradition", "unverified_report"}
-STATES = {"draft", "fact_check", "rights_review", "approved", "published"}
+STATES = {"draft", "fact_check", "rights_review", "approved", "published", "rejected"}
 SOURCE_TYPES = {"primary", "secondary", "testimony"}
 RIGHTS = {"link_only", "licensed", "public_domain", "permission_pending"}
 PRIVATE_FIELDS = {"email", "phone", "address", "contact_details", "private_evidence", "evidence_upload", "submitter_identity"}
