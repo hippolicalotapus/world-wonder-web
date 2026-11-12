@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from editorial_backup import snapshot, verify, write_new
+from editorial_backup import snapshot, verify, write_new, recovery_receipt
 
 NOW = "2026-11-12T22:00:00Z"
 def fixture():
@@ -49,6 +49,31 @@ class EditorialBackupTests(unittest.TestCase):
                 self.assertEqual(path.stat().st_mode & 0o777, 0o600)
             with self.assertRaises(FileExistsError):
                 write_new(path, snapshot(fixture(), NOW))
+
+    def test_receipt_links_to_verified_backup_without_private_data(self):
+        records = fixture()
+        bundle = snapshot(records, NOW)
+        receipt = recovery_receipt(bundle, records, NOW)
+        self.assertEqual(receipt["backup_sha256"], bundle["sha256"])
+        self.assertEqual(receipt["record_count"], 1)
+        self.assertNotIn("Fictional fixture", json.dumps(receipt))
+        self.assertNotIn("reviewer", json.dumps(receipt))
+
+    def test_receipt_rejects_mismatched_restoration(self):
+        records = fixture()
+        bundle = snapshot(records, NOW)
+        with self.assertRaisesRegex(ValueError, "differ"):
+            recovery_receipt(bundle, [], NOW)
+
+    def test_receipt_rejects_tampered_backup(self):
+        bundle = snapshot(fixture(), NOW)
+        bundle["sha256"] = "0" * 64
+        with self.assertRaisesRegex(ValueError, "integrity mismatch"):
+            recovery_receipt(bundle, fixture(), NOW)
+
+    def test_receipt_requires_timezone(self):
+        with self.assertRaises(ValueError):
+            recovery_receipt(snapshot(fixture(), NOW), fixture(), "2026-11-12T22:00:00")
 
     def test_symlink_destination_is_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
