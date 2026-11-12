@@ -18,3 +18,5 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
       - name: Run Node catalogue regression tests
         run: node --test tests/*.test.cjs
+      - name: Validate checked-in public catalogue artifact
+        run: node -e "const fs=require('node:fs');require('./src/public-catalogue.cjs').assertPublicExport(JSON.parse(fs.readFileSync('public-catalogue.json','utf8')))"
