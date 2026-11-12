@@ -3,6 +3,8 @@
 import json
 import hashlib
 import sys
+import datetime
+from public_export_audit import make_receipt
 from editorial_backup import write_new
 from public_artifact_guard import validate_public_artifact
 from pathlib import Path
@@ -50,8 +52,8 @@ def guarded_export(records, manifest):
     return result
 
 def main():
-    if len(sys.argv) != 5:
-        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json")
+    if len(sys.argv) != 6:
+        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json PRIVATE_RECEIPT.json")
     source = Path(sys.argv[1])
     destination = Path(sys.argv[2])
     if source.resolve() == destination.resolve():
@@ -64,7 +66,21 @@ def main():
     result = validate_public_artifact(guarded_export(records, manifest))
     if destination.name != "public-catalogue.json":
         raise SystemExit("Export destination must be public-catalogue.json")
+    receipt_path = Path(sys.argv[5])
+    if receipt_path.resolve() == destination.resolve() or receipt_path.name == "public-catalogue.json":
+        raise SystemExit("Private receipt must differ from public catalogue")
+    if destination.exists() or destination.is_symlink() or receipt_path.exists() or receipt_path.is_symlink():
+        raise SystemExit("Catalogue and receipt must both be new files")
+    if not destination.parent.is_dir() or not receipt_path.parent.is_dir():
+        raise SystemExit("Output parent directories must exist")
+    receipt = make_receipt(result, datetime.datetime.now(datetime.timezone.utc).isoformat())
     write_new(destination, result)
+    try:
+        write_new(receipt_path, receipt)
+    except Exception:
+        if destination.is_file() and not destination.is_symlink():
+            destination.unlink()
+        raise
     print(f"Exported {len(result)} published records")
 
 if __name__ == "__main__":
