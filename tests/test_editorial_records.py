@@ -82,5 +82,21 @@ class EditorialValidationTests(unittest.TestCase):
         item["sources"] = []
         self.assertEqual(validator.validate([item]), [])
 
+
+    def test_published_contact_information_rejected(self):
+        item = record()
+        item["email"] = "private@example.org"
+        self.assertTrue(any("private field email" in e for e in validator.validate([item])))
+
+    def test_published_private_evidence_rejected(self):
+        item = record()
+        item["private_evidence"] = "restricted"
+        self.assertTrue(any("private field private_evidence" in e for e in validator.validate([item])))
+
+    def test_draft_private_contact_allowed(self):
+        item = record(state="draft")
+        item["email"] = "private@example.org"
+        self.assertEqual(validator.validate([item]), [])
+
 if __name__ == "__main__":
     unittest.main()
