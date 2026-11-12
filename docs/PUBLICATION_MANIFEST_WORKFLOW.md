@@ -118,3 +118,13 @@ editorial approval is rejected. Reviewer names are compared without case,
 so changing capitalization does not bypass the two-person procedural check.
 These checks do not authenticate users or establish that a human review
 actually happened. Keep review histories private and independently audited.
+
+## Review-history integrity at export approval
+Before accepting independent reviewer attestation, the offline gate now checks
+recorded editorial transitions against the allowed state machine, verifies
+adjacent history entries connect, requires nonempty reasons, and checks
+chronological ordering of timezone-aware timestamps. Legacy histories may
+begin partway through the workflow, but any entries present must be coherent.
+This detects inconsistent or accidentally altered histories; it does **not**
+provide cryptographic tamper evidence or authenticate reviewers. Keep the
+private audit log access-controlled and retain original backups.
