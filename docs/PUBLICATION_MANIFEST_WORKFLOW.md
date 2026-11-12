@@ -79,3 +79,13 @@ repairs, publishes, or prints private content. Missing or mismatched files
 require manual inspection and a new reviewed export, not automatic repair.
 Forcible process termination can still leave a catalogue without its
 receipt; the reconciliation command detects this state.
+
+## Concurrent file replacement protection
+The create-only writer links a fully flushed temporary file into place
+without replacing an existing destination and syncs the containing directory
+on POSIX systems. If receipt creation fails, cleanup checks the identity of
+the catalogue file it created before removing it, avoiding deletion of a
+concurrently replaced file. This is not a crash-atomic transaction, nor a
+complete defense against hostile processes with write access to the output
+directory. Keep output directories access-controlled and use the read-only
+reconciliation command after any interruption.
