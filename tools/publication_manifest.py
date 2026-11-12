@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from export_public_catalogue import export, guarded_export
 from editorial_backup import canonical, write_new
+from private_input import load_private_json
 
 def prepare(records):
     # Run existing editorial and rights gates first.
@@ -27,9 +28,7 @@ def main(argv=None):
     check.add_argument("private_manifest", type=Path)
     args = parser.parse_args(argv)
     source = args.private_source
-    if source.is_symlink() or source.name == "public-catalogue.json":
-        parser.error("Private source must not be a symlink or public catalogue")
-    records = json.loads(source.read_text(encoding="utf-8"))
+    records = load_private_json(source)
     if args.command == "prepare":
         manifest = prepare(records)
         if args.new_private_manifest.name == "public-catalogue.json":
@@ -37,9 +36,7 @@ def main(argv=None):
         write_new(args.new_private_manifest, manifest)
         print("Private manifest prepared; no publication performed")
     else:
-        if args.private_manifest.is_symlink():
-            parser.error("Refusing symlink manifest")
-        manifest = json.loads(args.private_manifest.read_text(encoding="utf-8"))
+        manifest = load_private_json(args.private_manifest)
         result = guarded_export(records, manifest)
         print(f"Manifest validated for {len(result)} records; no publication performed")
 
