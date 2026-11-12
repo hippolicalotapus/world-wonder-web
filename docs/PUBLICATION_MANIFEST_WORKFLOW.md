@@ -89,3 +89,12 @@ concurrently replaced file. This is not a crash-atomic transaction, nor a
 complete defense against hostile processes with write access to the output
 directory. Keep output directories access-controlled and use the read-only
 reconciliation command after any interruption.
+
+## Private input file safety
+Manifest preparation, reviewer attestation, and the public export CLI use a
+shared read-only loader for private JSON. It refuses symbolic links, named
+pipes, directories and a file named `public-catalogue.json` as private
+inputs. On systems supporting `O_NOFOLLOW`, the file is opened without
+following a final symlink. These checks reduce accidental disclosure and
+blocking reads; they are not a substitute for restricted private-directory
+permissions or authenticated reviewer access.
