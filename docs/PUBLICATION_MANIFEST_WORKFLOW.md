@@ -45,3 +45,13 @@ symlink inputs, and overwriting an existing private attestation. It does
 not publish, deploy, or independently establish the reviewer's identity.
 Human review is still required; do not generate an attestation merely to
 satisfy the software gate.
+
+## Final public artifact privacy check
+Before writing a new public catalogue, the exporter now checks the exact
+public record and source field sets, published status, unique IDs, required
+sources, evidence classification, source dates, URL schemes and embedded URL
+credentials. Unexpected internal fields are rejected rather than silently
+written. The existing JavaScript CI artifact check remains in place as a
+second, independent gate. The exporter still requires a source-bound
+manifest and separate reviewer attestation and refuses to overwrite an
+existing catalogue. These checks do not publish or deploy the website.
