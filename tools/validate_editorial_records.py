@@ -10,6 +10,7 @@ CLAIMS = {"documented_event", "first_person_testimony", "belief_or_tradition", "
 STATES = {"draft", "fact_check", "rights_review", "approved", "published"}
 SOURCE_TYPES = {"primary", "secondary", "testimony"}
 RIGHTS = {"link_only", "licensed", "public_domain", "permission_pending"}
+PRIVATE_FIELDS = {"email", "phone", "address", "contact_details", "private_evidence", "evidence_upload", "submitter_identity"}
 
 def validate(records):
     errors, ids = [], set()
@@ -20,6 +21,10 @@ def validate(records):
         if not isinstance(record, dict):
             errors.append(f"{at}: expected object")
             continue
+        if state := record.get("review_status"):
+            if state == "published":
+                for field in PRIVATE_FIELDS.intersection(record):
+                    errors.append(f"{at}: private field {field} cannot be published")
         for field in ("id", "title", "collection", "summary"):
             if not isinstance(record.get(field), str) or not record[field].strip():
                 errors.append(f"{at}: missing {field}")
