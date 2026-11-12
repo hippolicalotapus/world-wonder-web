@@ -39,6 +39,10 @@ def validate(records):
             continue
         if state == "published" and not sources:
             errors.append(f"{at}: published records require sources")
+        if state == "published" and record.get("claim_type") == "documented_event" and not any(
+            isinstance(source, dict) and source.get("source_type") == "primary" for source in sources
+        ):
+            errors.append(f"{at}: documented events require a primary source")
         for i, source in enumerate(sources):
             where = f"{at}.sources[{i}]"
             if not isinstance(source, dict):
