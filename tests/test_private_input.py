@@ -32,7 +32,7 @@ class PrivateInputTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "public-catalogue.json"
             path.write_text("[]")
-            with self.assertRaisesRegex(ValueError, "Public catalogue"):
+            with self.assertRaisesRegex(ValueError, "public catalogue"):
                 load_private_json(path)
 
     def test_invalid_json_rejected(self):
