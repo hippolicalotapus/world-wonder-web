@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from review_console import review_records, safe_write
+from review_console import review_records, safe_write, file_digest
 
 NOW = "2026-11-12T22:00:00Z"
 def record():
@@ -42,6 +42,27 @@ class ReviewConsoleTests(unittest.TestCase):
             self.assertEqual(json.loads(output.read_text())[0]["id"], "fixture")
             if os.name == "posix":
                 self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+
+    def test_expected_status_prevents_stale_review(self):
+        with self.assertRaisesRegex(ValueError, "Stale review"):
+            review_records([record()], "fixture", "fact_check", "Editor", "Check", NOW, "approved")
+
+    def test_safe_write_refuses_existing_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "review.json"
+            safe_write(output, [record()])
+            original = output.read_bytes()
+            with self.assertRaises(FileExistsError):
+                safe_write(output, [])
+            self.assertEqual(output.read_bytes(), original)
+
+    def test_file_digest_detects_source_changes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "source.json"
+            output.write_text("[]")
+            before = file_digest(output)
+            output.write_text("[1]")
+            self.assertNotEqual(before, file_digest(output))
 
     def test_safe_write_rejects_symlink(self):
         with tempfile.TemporaryDirectory() as folder:
