@@ -3,6 +3,7 @@
 import json
 import hashlib
 import sys
+from editorial_backup import write_new
 from pathlib import Path
 from validate_editorial_records import validate
 
@@ -48,17 +49,21 @@ def guarded_export(records, manifest):
     return result
 
 def main():
-    if len(sys.argv) != 4:
-        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json")
+    if len(sys.argv) != 5:
+        raise SystemExit("Usage: python3 tools/export_public_catalogue.py INPUT.json OUTPUT.json MANIFEST.json ATTESTATION.json")
     source = Path(sys.argv[1])
     destination = Path(sys.argv[2])
     if source.resolve() == destination.resolve():
         raise SystemExit("Input and output must differ")
     records = json.loads(source.read_text(encoding="utf-8"))
     manifest = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
+    from independent_review import validate_attestation
+    attestation = json.loads(Path(sys.argv[4]).read_text(encoding="utf-8"))
+    validate_attestation(records, manifest, attestation)
     result = guarded_export(records, manifest)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if destination.name != "public-catalogue.json":
+        raise SystemExit("Export destination must be public-catalogue.json")
+    write_new(destination, result)
     print(f"Exported {len(result)} published records")
 
 if __name__ == "__main__":
