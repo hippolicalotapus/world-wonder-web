@@ -7,7 +7,7 @@ from pathlib import Path
 def load_private_json(path):
     path = Path(path)
     if path.name == "public-catalogue.json":
-        raise ValueError("Public catalogue cannot be a private editorial input")
+        raise ValueError("Private editorial input cannot be a public catalogue")
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
     fd = os.open(path, flags)
     try:
