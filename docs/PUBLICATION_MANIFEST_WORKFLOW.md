@@ -174,3 +174,12 @@ records, and refuses Git repositories and unsealed published histories.
 Verification is read-only. Retain the resulting anchor under independent
 access controls; merely creating it beside editable records does not establish
 trust. Neither command publishes or deploys content.
+
+## Audit-anchor path and hash hardening
+Anchor preparation rejects output paths with symbolic-link ancestor directories,
+including aliases of the editable source directory, and refuses Git repository
+locations. Anchor verification requires nonempty record identifiers and
+lowercase 64-character SHA-256 head hashes. Keep anchors in a separately
+controlled private directory. These filesystem preflight checks cannot
+protect against a hostile process changing directory entries concurrently;
+use trusted filesystem permissions and retain independently verified copies.
