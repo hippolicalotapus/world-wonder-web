@@ -35,11 +35,14 @@ def validate_public_artifact(records):
                 raise ValueError("Invalid public source value")
             try:
                 url = urlsplit(source["url"])
-                if url.scheme not in ("http", "https") or not url.hostname or url.username or url.password:
-                    raise ValueError("Unsafe public source URL")
+            except (ValueError, TypeError) as exc:
+                raise ValueError("Unsafe public source URL") from exc
+            if url.scheme not in ("http", "https") or not url.hostname or url.username or url.password:
+                raise ValueError("Unsafe public source URL")
+            try:
                 date.fromisoformat(source["accessed_on"])
             except (ValueError, TypeError) as exc:
-                raise ValueError("Invalid public source URL or date") from exc
+                raise ValueError("Invalid public source date") from exc
             if source["source_type"] not in SOURCE_TYPES or source["rights_status"] not in RIGHTS:
                 raise ValueError("Invalid public source classification or rights")
         if record["claim_type"] == "documented_event" and not any(
