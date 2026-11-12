@@ -32,7 +32,7 @@ def guarded_export(records, manifest):
     if manifest["format"] != "world-wonder-publication-manifest-v1":
         raise ValueError("Unsupported publication manifest")
     digest = hashlib.sha256(
-        (json.dumps(records, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\\n").encode("utf-8")
+        (json.dumps(records, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
     ).hexdigest()
     if manifest["source_sha256"] != digest:
         raise ValueError("Publication source changed since approval")
@@ -41,8 +41,7 @@ def guarded_export(records, manifest):
         raise ValueError("Invalid publication ID list")
     if len(set(ids)) != len(ids):
         raise ValueError("Duplicate publication IDs")
-    manifest = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
-    result = guarded_export(records, manifest)
+    result = export(records)
     actual = {item["id"] for item in result}
     if set(ids) != actual:
         raise ValueError("Publication IDs must exactly match published records")
@@ -56,7 +55,8 @@ def main():
     if source.resolve() == destination.resolve():
         raise SystemExit("Input and output must differ")
     records = json.loads(source.read_text(encoding="utf-8"))
-    result = export(records)
+    manifest = json.loads(Path(sys.argv[3]).read_text(encoding="utf-8"))
+    result = guarded_export(records, manifest)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Exported {len(result)} published records")
