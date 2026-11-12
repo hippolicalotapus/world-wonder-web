@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from editorial_backup import snapshot, verify, write_new, recovery_receipt
+from editorial_backup import snapshot, verify, write_new, recovery_receipt, restore_pair
 
 NOW = "2026-11-12T22:00:00Z"
 def fixture():
@@ -74,6 +74,36 @@ class EditorialBackupTests(unittest.TestCase):
     def test_receipt_requires_timezone(self):
         with self.assertRaises(ValueError):
             recovery_receipt(snapshot(fixture(), NOW), fixture(), "2026-11-12T22:00:00")
+
+    def test_restore_pair_writes_both_files(self):
+        with tempfile.TemporaryDirectory() as folder:
+            destination = Path(folder) / "restored.json"
+            receipt = Path(folder) / "receipt.json"
+            restore_pair(snapshot(fixture(), NOW), destination, receipt, NOW)
+            self.assertEqual(json.loads(destination.read_text()), fixture())
+            self.assertEqual(json.loads(receipt.read_text())["record_count"], 1)
+
+    def test_restore_pair_cleans_up_on_receipt_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            destination = Path(folder) / "restored.json"
+            receipt = Path(folder) / "receipt.json"
+            def broken_writer(path, payload):
+                if path == receipt:
+                    raise OSError("simulated receipt write failure")
+                write_new(path, payload)
+            with self.assertRaisesRegex(OSError, "simulated"):
+                restore_pair(snapshot(fixture(), NOW), destination, receipt, NOW, broken_writer)
+            self.assertFalse(destination.exists())
+
+    def test_restore_pair_rejects_existing_receipt_without_writing(self):
+        with tempfile.TemporaryDirectory() as folder:
+            destination = Path(folder) / "restored.json"
+            receipt = Path(folder) / "receipt.json"
+            receipt.write_text("existing")
+            with self.assertRaises(FileExistsError):
+                restore_pair(snapshot(fixture(), NOW), destination, receipt, NOW)
+            self.assertFalse(destination.exists())
+            self.assertEqual(receipt.read_text(), "existing")
 
     def test_symlink_destination_is_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
