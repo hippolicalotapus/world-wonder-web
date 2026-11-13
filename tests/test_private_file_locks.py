@@ -59,6 +59,22 @@ class PrivateLockTests(unittest.TestCase):
             with locked_inputs((self.source,)):
                 self.source.write_text("{}")
 
+    def test_directory_replacement_detected(self):
+        with self.assertRaisesRegex(ValueError,"directory changed"):
+            with locked_inputs((self.source,)):
+                original_dir=self.source.parent
+                moved=original_dir.with_name("source-moved")
+                original_dir.rename(moved)
+                original_dir.mkdir()
+                (original_dir/self.source.name).write_text("{}")
+
+    def test_directory_symlink_rejected(self):
+        alias=self.source.parent.with_name("source-alias")
+        alias.symlink_to(self.source.parent,target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,"directory symlink"):
+            with locked_inputs((alias/self.source.name,)):
+                pass
+
     def test_receipt_recovery_under_lock(self):
         before=(self.source.read_bytes(),self.migrated.read_bytes())
         recover_receipt(self.source,self.migrated,self.receipt)
