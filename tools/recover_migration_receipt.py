@@ -11,20 +11,22 @@ from stable_private_input import read_stable, assert_unchanged
 from migration_receipt import make_receipt
 from reconcile_migration import reconcile
 from review_anchor_cli import check_output
+from private_file_locks import locked_inputs
 
 def recover_receipt(original, migrated, receipt):
     original, migrated, receipt = (Path(p).absolute() for p in (original, migrated, receipt))
-    if reconcile(original, migrated, receipt) != "missing_receipt":
-        raise ValueError("Recovery requires a verified migration with missing receipt")
-    target = check_output(original, receipt)
-    if target.parent.resolve() == migrated.parent.resolve():
-        raise ValueError("Receipt must be separate from migrated records")
-    source, source_stamp = read_stable(original)
-    output, migrated_stamp = read_stable(migrated)
-    proof = make_receipt(source, output)
-    assert_unchanged(original, source_stamp, source)
-    assert_unchanged(migrated, migrated_stamp, output)
-    write_new(target, proof)
+    with locked_inputs((original, migrated)):
+        if reconcile(original, migrated, receipt) != "missing_receipt":
+            raise ValueError("Recovery requires a verified migration with missing receipt")
+        target = check_output(original, receipt)
+        if target.parent.resolve() == migrated.parent.resolve():
+            raise ValueError("Receipt must be separate from migrated records")
+        source, source_stamp = read_stable(original)
+        output, migrated_stamp = read_stable(migrated)
+        proof = make_receipt(source, output)
+        assert_unchanged(original, source_stamp, source)
+        assert_unchanged(migrated, migrated_stamp, output)
+        write_new(target, proof)
     return proof
 
 def main(argv=None):
