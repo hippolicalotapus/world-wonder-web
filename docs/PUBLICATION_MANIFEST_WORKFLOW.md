@@ -255,3 +255,20 @@ receipt must match the source and migrated file hashes. The command never
 creates, removes, or overwrites any file. Incomplete states return a nonzero
 exit code; keep them quarantined for manual review and use fresh paths for
 any later attempt. A verified pair is not itself publication authorization.
+
+## Explicit recovery of a missing migration receipt
+When read-only reconciliation reports `missing_receipt`, and only after
+independently checking the original and migrated private files, the receipt
+may be created with:
+
+```sh
+python3 tools/recover_migration_receipt.py /private/source/records.json /private/migrated/records.json /private/receipts/migration.json --confirm-create
+python3 tools/verify_migration.py /private/source/records.json /private/migrated/records.json /private/receipts/migration.json
+```
+
+Recovery requires explicit confirmation, a verified matching migration, a
+new receipt path in a separate private directory, and refuses overwrites.
+It rechecks both inputs before writing and does not change either source
+file. Do not use this to repair mismatched migrations, orphaned receipts, or
+published data. Filesystem changes by a hostile concurrent writer remain a
+risk without exclusive directory access; this is not publication approval.
