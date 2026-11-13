@@ -272,3 +272,13 @@ It rechecks both inputs before writing and does not change either source
 file. Do not use this to repair mismatched migrations, orphaned receipts, or
 published data. Filesystem changes by a hostile concurrent writer remain a
 risk without exclusive directory access; this is not publication approval.
+
+## Concurrent-change detection for private migration inputs
+Receipt recovery and independent receipt verification now capture private
+input file identity, size, and nanosecond modification/change timestamps,
+then reread inputs to detect changes before completing the operation.
+Symlinked private input files are refused. The checks detect ordinary
+concurrent edits and file replacement but do not establish exclusive locks
+or eliminate time-of-check/time-of-use races against hostile writers. Use
+exclusive access to private storage during recovery and verification. No
+public website files are modified by these checks.
