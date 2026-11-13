@@ -40,10 +40,11 @@ def locked_inputs(paths):
             current = path.stat()
             if (info.st_dev, info.st_ino) != (current.st_dev, current.st_ino):
                 raise ValueError("Private input replaced while acquiring lock")
+        initial = {str(path): os.fstat(fd) for path, fd in opened}
         yield
         for path, fd in opened:
             current = path.stat()
-            info = os.fstat(fd)
+            info = initial[str(path)]
             if (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns) != (
                 current.st_dev, current.st_ino, current.st_size, current.st_mtime_ns, current.st_ctime_ns
             ):
