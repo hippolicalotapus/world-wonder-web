@@ -5,7 +5,6 @@ symlinks. All cooperating writers must honor flock; this is not mandatory
 locking and does not prevent uncooperative directory replacements.
 """
 import contextlib
-import json
 import os
 import stat
 from pathlib import Path
@@ -23,7 +22,19 @@ def locked_inputs(paths):
     if len({str(p.absolute()) for p in paths}) != len(paths):
         raise ValueError("Locked input paths must be distinct")
     opened = []
+    directories = []
     try:
+        parent_paths = sorted({parent for path in paths for parent in path.absolute().parents}, key=lambda p: str(p))
+        for parent in parent_paths:
+            if parent.is_symlink():
+                raise ValueError('Private input directory symlink refused')
+            flags = os.O_RDONLY | getattr(os, 'O_DIRECTORY', 0) | getattr(os, 'O_NOFOLLOW', 0)
+            dir_fd = os.open(parent, flags)
+            directories.append((parent, dir_fd))
+            info = os.fstat(dir_fd)
+            current = parent.stat()
+            if not stat.S_ISDIR(info.st_mode) or (info.st_dev, info.st_ino) != (current.st_dev, current.st_ino):
+                raise ValueError('Private input directory replaced while opening')
         for path in sorted(paths, key=lambda p: str(p.absolute())):
             if path.name == "public-catalogue.json":
                 raise ValueError("Public catalogue cannot be private input")
@@ -42,6 +53,11 @@ def locked_inputs(paths):
                 raise ValueError("Private input replaced while acquiring lock")
         initial = {str(path): os.fstat(fd) for path, fd in opened}
         yield
+        for parent, dir_fd in directories:
+            current = parent.stat()
+            info = os.fstat(dir_fd)
+            if (info.st_dev, info.st_ino) != (current.st_dev, current.st_ino):
+                raise ValueError('Private input directory changed while locked')
         for path, fd in opened:
             current = path.stat()
             info = initial[str(path)]
@@ -51,4 +67,6 @@ def locked_inputs(paths):
                 raise ValueError("Private input changed while locked")
     finally:
         for _, fd in reversed(opened):
+            os.close(fd)
+        for _, fd in reversed(directories):
             os.close(fd)
