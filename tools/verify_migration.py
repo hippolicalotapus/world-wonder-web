@@ -2,7 +2,7 @@
 """Read-only offline verification of private legacy migration receipt."""
 import argparse
 from pathlib import Path
-from private_input import load_private_json
+from stable_private_input import read_stable, assert_unchanged
 from migration_receipt import verify_receipt
 
 def main(argv=None):
@@ -14,7 +14,10 @@ def main(argv=None):
     paths=(args.original.absolute(),args.migrated.absolute(),args.private_receipt.absolute())
     if len(set(paths)) != 3:
         raise ValueError("Verification inputs must be distinct")
-    verify_receipt(*(load_private_json(p) for p in paths))
+    snapshots = [read_stable(p) for p in paths]
+    verify_receipt(*(data for data, _ in snapshots))
+    for p, (data, stamp) in zip(paths, snapshots):
+        assert_unchanged(p, stamp, data)
     print("Migration verified; no files changed")
     return 0
 
