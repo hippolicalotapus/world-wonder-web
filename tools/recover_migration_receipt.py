@@ -15,6 +15,9 @@ from private_file_locks import locked_inputs
 
 def recover_receipt(original, migrated, receipt):
     original, migrated, receipt = (Path(p).absolute() for p in (original, migrated, receipt))
+    # Preserve the reconciliation contract for incomplete pairs before locking.
+    if not migrated.exists() or migrated.is_symlink():
+        raise ValueError("Recovery requires an existing regular migrated file")
     with locked_inputs((original, migrated)):
         if reconcile(original, migrated, receipt) != "missing_receipt":
             raise ValueError("Recovery requires a verified migration with missing receipt")
