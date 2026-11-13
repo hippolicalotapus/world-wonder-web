@@ -3,7 +3,7 @@
 Never reads receipt contents or deletes files. Operators must inspect and
 authorize any cleanup separately. This is not a recovery or deletion command.
 """
-from .inspect_receipt_temps import inspect_receipt_temps
+from tools.inspect_receipt_temps import inspect_receipt_temps
 
 def plan_receipt_temp_review(directory):
     entries=inspect_receipt_temps(directory)
