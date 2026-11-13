@@ -18,17 +18,17 @@ def recover_receipt(original, migrated, receipt):
     # Preserve the reconciliation contract for incomplete pairs before locking.
     if not migrated.exists() or migrated.is_symlink():
         raise ValueError("Recovery requires an existing regular migrated file")
-    with locked_inputs((original, migrated)):
+    with locked_inputs((original, migrated)) as reader:
         if reconcile(original, migrated, receipt) != "missing_receipt":
             raise ValueError("Recovery requires a verified migration with missing receipt")
         target = check_output(original, receipt)
         if target.parent.resolve() == migrated.parent.resolve():
             raise ValueError("Receipt must be separate from migrated records")
-        source, source_stamp = read_stable(original)
-        output, migrated_stamp = read_stable(migrated)
+        source = reader.read_json(original)
+        output = reader.read_json(migrated)
         proof = make_receipt(source, output)
-        assert_unchanged(original, source_stamp, source)
-        assert_unchanged(migrated, migrated_stamp, output)
+        if reader.read_json(original) != source or reader.read_json(migrated) != output:
+            raise ValueError('Private migration inputs changed during locked recovery')
         write_new(target, proof)
     return proof
 
