@@ -303,3 +303,14 @@ before the operation completes. Regression tests cover both conditions.
 This is an additional fail-closed detection layer, not an atomic guarantee
 against hostile concurrent directory changes. Operate on access-controlled
 private storage and ensure exclusive access for sensitive migrations.
+
+## Descriptor-bound verification of private migration inputs
+The private migration receipt recovery and independent verifier now read
+JSON from the already-locked input file descriptors, rather than reopening
+paths for the critical receipt comparison. Reads check descriptor metadata
+before and after, and the lock context checks ancestor directory and file
+identity before completion. This reduces exposure to filename replacement
+between opening and verification. The receipt is still create-only, and
+verification remains read-only. Directory-relative access for output
+creation and truly atomic multi-file commits are not yet implemented;
+operationally exclusive private storage remains required.
