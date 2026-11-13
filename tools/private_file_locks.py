@@ -5,6 +5,7 @@ symlinks. All cooperating writers must honor flock; this is not mandatory
 locking and does not prevent uncooperative directory replacements.
 """
 import contextlib
+import json
 import os
 import stat
 from pathlib import Path
@@ -52,7 +53,31 @@ def locked_inputs(paths):
             if (info.st_dev, info.st_ino) != (current.st_dev, current.st_ino):
                 raise ValueError("Private input replaced while acquiring lock")
         initial = {str(path): os.fstat(fd) for path, fd in opened}
-        yield
+        class LockedReader:
+            def read_json(self, requested):
+                requested = Path(requested)
+                matches = [(p, fd) for p, fd in opened if p.absolute() == requested.absolute()]
+                if len(matches) != 1:
+                    raise ValueError("Input not held by this lock")
+                path, fd = matches[0]
+                before = os.fstat(fd)
+                if before != initial[str(path)]:
+                    raise ValueError("Private input changed while locked")
+                chunks = []
+                offset = 0
+                while True:
+                    part = os.pread(fd, 65536, offset)
+                    if not part:
+                        break
+                    chunks.append(part)
+                    offset += len(part)
+                after = os.fstat(fd)
+                if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (
+                    after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns
+                ):
+                    raise ValueError("Private input changed during locked read")
+                return json.loads(b"".join(chunks).decode("utf-8"))
+        yield LockedReader()
         for parent, dir_fd in directories:
             current = parent.stat()
             info = os.fstat(dir_fd)
