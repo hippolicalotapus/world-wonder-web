@@ -7,7 +7,7 @@ migrations, and verifies the inputs again immediately before writing.
 import argparse
 from pathlib import Path
 from editorial_backup import write_new
-from private_input import load_private_json
+from stable_private_input import read_stable, assert_unchanged
 from migration_receipt import make_receipt
 from reconcile_migration import reconcile
 from review_anchor_cli import check_output
@@ -19,18 +19,11 @@ def recover_receipt(original, migrated, receipt):
     target = check_output(original, receipt)
     if target.parent.resolve() == migrated.parent.resolve():
         raise ValueError("Receipt must be separate from migrated records")
-    before_source = original.stat()
-    before_migrated = migrated.stat()
-    source = load_private_json(original)
-    output = load_private_json(migrated)
+    source, source_stamp = read_stable(original)
+    output, migrated_stamp = read_stable(migrated)
     proof = make_receipt(source, output)
-    # Re-read both inputs and compare file identity to reduce stale-proof risk.
-    if (original.stat().st_dev, original.stat().st_ino) != (before_source.st_dev, before_source.st_ino):
-        raise ValueError("Original changed during receipt recovery")
-    if (migrated.stat().st_dev, migrated.stat().st_ino) != (before_migrated.st_dev, before_migrated.st_ino):
-        raise ValueError("Migrated file changed during receipt recovery")
-    if load_private_json(original) != source or load_private_json(migrated) != output:
-        raise ValueError("Migration inputs changed during receipt recovery")
+    assert_unchanged(original, source_stamp, source)
+    assert_unchanged(migrated, migrated_stamp, output)
     write_new(target, proof)
     return proof
 
