@@ -294,3 +294,12 @@ Advisory locks do not stop hostile or uncooperative writers, nor do they
 prevent directory-entry races. Use access-controlled private storage and
 exclusive operational access for sensitive recovery; never interpret a
 verified receipt as publication approval. No website files are changed.
+
+## Ancestor directory identity checks
+Private receipt recovery and independent verification now keep open handles
+to input ancestor directories while holding advisory file locks. They reject
+symlinked directory aliases and fail if an ancestor directory is replaced
+before the operation completes. Regression tests cover both conditions.
+This is an additional fail-closed detection layer, not an atomic guarantee
+against hostile concurrent directory changes. Operate on access-controlled
+private storage and ensure exclusive access for sensitive migrations.
