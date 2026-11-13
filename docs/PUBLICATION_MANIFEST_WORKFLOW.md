@@ -314,3 +314,15 @@ between opening and verification. The receipt is still create-only, and
 verification remains read-only. Directory-relative access for output
 creation and truly atomic multi-file commits are not yet implemented;
 operationally exclusive private storage remains required.
+
+## Directory-relative create-only migration receipt recovery
+Missing-receipt recovery now writes the private receipt through an opened,
+verified directory descriptor using an exclusive mode-0600 temporary file,
+file fsync, no-overwrite hard-link publication, directory fsync, and
+private temporary-name cleanup. Existing destination files and symlinks
+cannot be overwritten. The original and migrated input records remain
+read-only and are checked through locked descriptors. A crash may still
+leave a temporary private file or a fully linked receipt whose directory
+sync was interrupted; use read-only reconciliation before any retry.
+This improves single-receipt atomicity, not atomicity across the migrated
+record and receipt pair, and it does not authorize publication.
