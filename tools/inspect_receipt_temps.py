@@ -23,11 +23,17 @@ def inspect_receipt_temps(directory):
         for name in sorted(os.listdir(fd)):
             if not name.startswith(PREFIX):
                 continue
-            info = os.stat(name, dir_fd=fd, follow_symlinks=False)
-            kind = "regular" if stat.S_ISREG(info.st_mode) else "unsafe"
+            try:
+                info = os.stat(name, dir_fd=fd, follow_symlinks=False)
+            except FileNotFoundError:
+                # An interrupted writer may have removed its temporary file.
+                # Never mistake disappearance for a verified recovery.
+                entries.append({"name": name, "kind": "disappeared", "bytes": None})
+                continue
+            kind = "regular" if stat.S_ISREG(info.st_mode) and info.st_nlink == 1 else "unsafe"
             entries.append({"name": name, "kind": kind, "bytes": info.st_size})
-        current = directory.stat()
-        if (opened.st_dev, opened.st_ino) != (current.st_dev, current.st_ino):
+        current = directory.lstat()
+        if not stat.S_ISDIR(current.st_mode) or (opened.st_dev, opened.st_ino) != (current.st_dev, current.st_ino):
             raise ValueError("Receipt directory replaced during inspection")
         return entries
     finally:
