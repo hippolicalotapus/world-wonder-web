@@ -6,7 +6,7 @@ migrations, and verifies the inputs again immediately before writing.
 """
 import argparse
 from pathlib import Path
-from editorial_backup import write_new
+from atomic_private_receipt import write_new_receipt
 from stable_private_input import read_stable, assert_unchanged
 from migration_receipt import make_receipt
 from reconcile_migration import reconcile
@@ -29,7 +29,7 @@ def recover_receipt(original, migrated, receipt):
         proof = make_receipt(source, output)
         if reader.read_json(original) != source or reader.read_json(migrated) != output:
             raise ValueError('Private migration inputs changed during locked recovery')
-        write_new(target, proof)
+        write_new_receipt(target, proof)
     return proof
 
 def main(argv=None):
