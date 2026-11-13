@@ -282,3 +282,15 @@ concurrent edits and file replacement but do not establish exclusive locks
 or eliminate time-of-check/time-of-use races against hostile writers. Use
 exclusive access to private storage during recovery and verification. No
 public website files are modified by these checks.
+
+## Advisory locking during private recovery
+The receipt recovery and independent verification commands now acquire
+nonblocking POSIX shared advisory locks on private input file descriptors,
+reject symlinks and non-regular inputs, and check file identity and metadata
+again before releasing locks. A competing exclusive advisory lock causes
+recovery to fail closed. This works only where POSIX `fcntl.flock` is
+available and cooperating writers respect the same locking convention.
+Advisory locks do not stop hostile or uncooperative writers, nor do they
+prevent directory-entry races. Use access-controlled private storage and
+exclusive operational access for sensitive recovery; never interpret a
+verified receipt as publication approval. No website files are changed.
