@@ -35,6 +35,21 @@ class PrivateLockTests(unittest.TestCase):
         with locked_inputs((self.source,self.migrated)):
             self.assertTrue(self.source.exists())
 
+    def test_descriptor_read_returns_private_json(self):
+        with locked_inputs((self.source,)) as reader:
+            self.assertEqual(reader.read_json(self.source), self.records)
+
+    def test_descriptor_read_refuses_unlocked_path(self):
+        with locked_inputs((self.source,)) as reader:
+            with self.assertRaisesRegex(ValueError, "not held"):
+                reader.read_json(self.migrated)
+
+    def test_descriptor_read_detects_mutation(self):
+        with locked_inputs((self.source,)) as reader:
+            self.source.write_text("{}")
+            with self.assertRaisesRegex(ValueError, "changed"):
+                reader.read_json(self.source)
+
     def test_duplicate_paths_rejected(self):
         with self.assertRaisesRegex(ValueError,"distinct"):
             with locked_inputs((self.source,self.source)):
