@@ -15,11 +15,11 @@ def main(argv=None):
     paths=(args.original.absolute(),args.migrated.absolute(),args.private_receipt.absolute())
     if len(set(paths)) != 3:
         raise ValueError("Verification inputs must be distinct")
-    with locked_inputs(paths):
-        snapshots = [read_stable(p) for p in paths]
-        verify_receipt(*(data for data, _ in snapshots))
-        for p, (data, stamp) in zip(paths, snapshots):
-            assert_unchanged(p, stamp, data)
+    with locked_inputs(paths) as reader:
+        snapshots = [reader.read_json(p) for p in paths]
+        verify_receipt(*snapshots)
+        if [reader.read_json(p) for p in paths] != snapshots:
+            raise ValueError('Private inputs changed during locked verification')
     print("Migration verified; no files changed")
     return 0
 
