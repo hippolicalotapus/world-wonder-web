@@ -45,9 +45,9 @@ class PrivateLockTests(unittest.TestCase):
                 reader.read_json(self.migrated)
 
     def test_descriptor_read_detects_mutation(self):
-        with locked_inputs((self.source,)) as reader:
-            self.source.write_text("{}")
-            with self.assertRaisesRegex(ValueError, "changed"):
+        with self.assertRaisesRegex(ValueError, "changed"):
+            with locked_inputs((self.source,)) as reader:
+                self.source.write_text("{}")
                 reader.read_json(self.source)
 
     def test_duplicate_paths_rejected(self):
