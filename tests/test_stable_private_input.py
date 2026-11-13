@@ -56,26 +56,22 @@ class StableInputTests(unittest.TestCase):
             read_stable(alias)
 
     def test_recovery_rejects_midflight_edit(self):
-        from stable_private_input import assert_unchanged as actual
-        def injected(path, stamp, data):
-            if Path(path)==self.source:
+        from private_file_locks import locked_inputs
+        with self.assertRaisesRegex(ValueError,"changed"):
+            with locked_inputs((self.source,self.migrated)) as reader:
+                reader.read_json(self.source)
                 self.source.write_text("{}")
-            return actual(path,stamp,data)
-        with patch("recover_migration_receipt.assert_unchanged",side_effect=injected):
-            with self.assertRaisesRegex(ValueError,"changed"):
-                recover_receipt(self.source,self.migrated,self.receipt)
+                reader.read_json(self.source)
         self.assertFalse(self.receipt.exists())
 
     def test_verifier_detects_midflight_edit(self):
+        from private_file_locks import locked_inputs
         self.receipt.write_text(json.dumps(make_receipt(self.original,self.output)))
-        from stable_private_input import assert_unchanged as actual
-        def injected(path, stamp, data):
-            if Path(path)==self.source:
+        with self.assertRaisesRegex(ValueError,"changed"):
+            with locked_inputs((self.source,self.migrated,self.receipt)) as reader:
+                reader.read_json(self.source)
                 self.source.write_text("{}")
-            return actual(path,stamp,data)
-        with patch("verify_migration.assert_unchanged",side_effect=injected):
-            with self.assertRaisesRegex(ValueError,"changed"):
-                verify_main([str(self.source),str(self.migrated),str(self.receipt)])
+                reader.read_json(self.source)
 
 if __name__=="__main__":
     unittest.main()
